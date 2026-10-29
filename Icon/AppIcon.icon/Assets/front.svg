@@ -1,3 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <rect x="262" y="372" width="500" height="380" rx="72" fill="#FFFFFF"/>
+  <!-- Mango body with three memory-contact slots cut out of its lower half. -->
+  <path fill="#FF9F1C" fill-rule="evenodd" d="M 604 262 C 790 300 838 560 712 728 C 610 864 378 872 292 768 C 206 664 238 498 352 378 C 424 302 520 246 604 262 Z M 414 600 h 32 a 12 12 0 0 1 12 12 v 104 a 12 12 0 0 1 -12 12 h -32 a 12 12 0 0 1 -12 -12 v -104 a 12 12 0 0 1 12 -12 Z M 502 600 h 32 a 12 12 0 0 1 12 12 v 104 a 12 12 0 0 1 -12 12 h -32 a 12 12 0 0 1 -12 -12 v -104 a 12 12 0 0 1 12 -12 Z M 590 600 h 32 a 12 12 0 0 1 12 12 v 104 a 12 12 0 0 1 -12 12 h -32 a 12 12 0 0 1 -12 -12 v -104 a 12 12 0 0 1 12 -12 Z"/>
 </svg>
