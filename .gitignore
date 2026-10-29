@@ -1,0 +1,9 @@
+docs/screens/*.png
+.build/
+.swiftpm/
+DerivedData/
+*.xcodeproj/
+xcuserdata/
+.DS_Store
+.env*
+/shots/
