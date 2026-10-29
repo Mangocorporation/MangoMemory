@@ -37,6 +37,7 @@ struct Theme: Identifiable, Hashable {
         Theme(id: "violet", name: "Violet", shades: .init(light: 0xB9A6FF, base: 0x7B5CFF, deep: 0x6342E6)),
         Theme(id: "pink", name: "Pink", shades: .init(light: 0xFF9CCB, base: 0xE84A93, deep: 0xC0306F)),
         Theme(id: "red", name: "Red", shades: .init(light: 0xFF8A9A, base: 0xE11D48, deep: 0xBE123C)),
+        Theme(id: "mango", name: "Mango", shades: .init(light: 0xFFC46B, base: 0xFF9F1C, deep: 0xA85A00), darkText: true),
         Theme(id: "orange", name: "Orange", shades: .init(light: 0xFFB87A, base: 0xF97316, deep: 0xC2410C)),
         Theme(id: "yellow", name: "Yellow", shades: .init(light: 0xFFE17A, base: 0xF5B800, deep: 0x946800), darkText: true),
         Theme(id: "mint", name: "Mint", shades: .init(light: 0x8EEBC4, base: 0x2BC48A, deep: 0x0F7A55), darkText: true),
@@ -58,8 +59,8 @@ final class ThemeStore {
     /// The app's brand color, or nil. Like Apple's own apps, the brand shows
     /// only while the Mac's accent is Multicolor (System Settings >
     /// Appearance). Any other Mac accent wins. Example:
-    /// Theme(id: "brand", name: "Brand", shades: .init(light: 0x8EEBC4, base: 0x2BC48A, deep: 0x0F7A55), darkText: true)
-    static let brand: Theme? = nil
+    /// Mango orange. Dark text on fills: white on this orange reads at about 2:1.
+    static let brand: Theme? = Theme.all.first { $0.id == "mango" }
 
     var themeID: String {
         didSet { UserDefaults.standard.set(themeID, forKey: "appearance.accent") }
