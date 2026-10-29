@@ -1,14 +1,13 @@
 #!/bin/zsh
-# Snapshots of every page in light and dark, with seed data, on a fresh test store.
+# Snapshots of the memory window and every Settings tab in light and dark, on test settings.
 # Usage: tools/snap.sh            all pages
-#        APP_SNAPSHOT_PAGES=all,settings tools/snap.sh
+#        APP_SNAPSHOT_PAGES=window,settings tools/snap.sh
 set -u
 app=~/Applications/MangoCleaner.app/Contents/MacOS/MangoCleaner
-store=/tmp/MangoCleaner-test.store
 shots=/tmp/MangoCleaner-shots
 # A crashed run leaves saved window state, and the next launch would wait on a "reopen windows?" alert.
 rm -rf ~/Library/Saved\ Application\ State/com.mangocorp.mangocleaner.savedState
-# Seed data only fills an empty store, so start from nothing.
-rm -f $store $store-shm $store-wal
 rm -rf $shots
-APP_STORE=$store APP_SEED=1 APP_SNAPSHOT=$shots $app
+# Quit a running copy first: two menu bar items would confuse the capture.
+pkill -x MangoCleaner; sleep 0.5
+APP_STORE=/tmp/MangoCleaner-test APP_SNAPSHOT=$shots $app

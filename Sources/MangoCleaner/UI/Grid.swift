@@ -86,19 +86,28 @@ private struct GridProbeModifier: ViewModifier {
     let edge: String?
     let inset: CGFloat
     @State private var owner = UUID()
+    @State private var frame: CGRect?
 
     func body(content: Content) -> some View {
         if GridProbes.enabled {
             content
                 .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame in
-                    GridProbes.shared.update(.init(kind: kind, name: name, area: area, edge: edge, inset: inset,
-                                                   x: frame.minX, y: frame.minY,
-                                                   width: frame.width, height: frame.height), owner: owner)
+                    self.frame = frame
+                    register(frame)
                 }
+                // A reopened window (the menu bar window) keeps its frame, so
+                // the geometry callback does not fire again.
+                .onAppear { if let frame { register(frame) } }
                 .onDisappear { GridProbes.shared.remove(kind: kind, name: name, owner: owner) }
         } else {
             content
         }
+    }
+
+    private func register(_ frame: CGRect) {
+        GridProbes.shared.update(.init(kind: kind, name: name, area: area, edge: edge, inset: inset,
+                                       x: frame.minX, y: frame.minY,
+                                       width: frame.width, height: frame.height), owner: owner)
     }
 }
 

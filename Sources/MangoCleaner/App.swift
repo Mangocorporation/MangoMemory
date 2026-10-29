@@ -1,40 +1,30 @@
 import AppKit
-import SwiftData
 import SwiftUI
 
 // MangoCleaner
-//   MangoCleaner                      the app
-//   APP_STORE=<file> MangoCleaner     use another database (tests, experiments)
-//   APP_SNAPSHOT=<dir> MangoCleaner   save a PNG of every sidebar page and Settings tab in light and dark mode, then quit
-//   APP_SEED=1 MangoCleaner           fill an empty /tmp store with sample items (tools/snap.sh)
-//   MangoCleaner --selftest           run the self-test on a /tmp store and quit with 0 or 1 (tools/selftest.sh)
+//   MangoCleaner                      the app (menu bar only, no Dock icon)
+//   APP_STORE=<file> MangoCleaner     test run: settings go to a separate defaults suite
+//   APP_SNAPSHOT=<dir> MangoCleaner   save a PNG of the memory window and every Settings tab in light and dark mode, then quit
+//   MangoCleaner --selftest           run the self-test and quit with 0 or 1 (tools/selftest.sh)
 //   APP_ACCENT=<id> MangoCleaner      run with another accent from Theme.all (UI/Theme.swift)
 //   APP_GRID=1 MangoCleaner           draw the 8 pt grid and the layout probes over the window
 
 @main
 struct MangoCleanerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
-    @State private var model = AppModel(container: Store.makeContainer())
+    @State private var model = AppModel()
 
     var body: some Scene {
-        Window("MangoCleaner", id: "main") {
-            ContentView()
+        MenuBarExtra {
+            MemoryWindow()
                 .environment(model)
                 .themed()
                 .overlay { if GridOverlay.enabled { GridOverlay() } }
-                .frame(minWidth: 760, minHeight: 480)
+        } label: {
+            MenuBarLabel()
+                .environment(model)
         }
-        .modelContainer(model.container)
-        .defaultSize(width: 1100, height: 720)
-        .windowToolbarStyle(.unified)
-        .commands {
-            SidebarCommands()
-            ToolbarCommands()
-            CommandGroup(replacing: .newItem) {
-                Button("New Item") { model.addItem() }
-                    .keyboardShortcut("n")
-            }
-        }
+        .menuBarExtraStyle(.window)
 
         Settings {
             SettingsView()
@@ -47,12 +37,9 @@ struct MangoCleanerApp: App {
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Started from a terminal, the process is not a foreground app yet.
-        NSApp.setActivationPolicy(.regular)
-        NSApp.activate()
+        // A menu bar app: no Dock icon, no main menu. Info.plist sets LSUIElement too.
+        NSApp.setActivationPolicy(.accessory)
     }
-
-    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 
     /// The self-test's result becomes the exit code, after a normal quit.
     func applicationWillTerminate(_ notification: Notification) {
@@ -60,27 +47,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
-/// Where the data lives: ~/Library/Application Support/MangoCleaner/MangoCleaner.store
+/// Where settings live. MangoCleaner keeps no database: settings go to
+/// UserDefaults, and test runs (APP_STORE set) use their own suite so they
+/// never touch the real settings.
 enum Store {
-    /// True when APP_STORE points somewhere else (tests, snapshots, seed data).
+    /// True when APP_STORE is set (tests, snapshots, self-test).
     static var isOverridden: Bool {
         !(ProcessInfo.processInfo.environment["APP_STORE"] ?? "").isEmpty
     }
 
-    static var url: URL {
-        if let path = ProcessInfo.processInfo.environment["APP_STORE"], !path.isEmpty {
-            return URL(fileURLWithPath: path)
-        }
-        let dir = URL.applicationSupportDirectory.appending(path: "MangoCleaner", directoryHint: .isDirectory)
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir.appending(path: "MangoCleaner.store")
-    }
-
-    static func makeContainer() -> ModelContainer {
-        do {
-            return try ModelContainer(for: Item.self, configurations: ModelConfiguration(url: url))
-        } catch {
-            fatalError("Could not open the database at \(url.path): \(error)")
-        }
-    }
+    static let defaults: UserDefaults = {
+        guard isOverridden else { return .standard }
+        let suite = "com.mangocorp.mangocleaner.test"
+        UserDefaults().removePersistentDomain(forName: suite)
+        return UserDefaults(suiteName: suite) ?? .standard
+    }()
 }

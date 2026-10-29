@@ -3,13 +3,39 @@ import IOKit.pwr_mgt
 import SwiftUI
 
 /// Screenshot mode for agents.
-///   APP_STORE=/tmp/test.store APP_SNAPSHOT=/tmp/shots ~/Applications/MangoCleaner.app/Contents/MacOS/MangoCleaner
-/// writes <page>-light.png and <page>-dark.png for every sidebar page, and
+///   APP_STORE=/tmp/MangoCleaner-test APP_SNAPSHOT=/tmp/shots ~/Applications/MangoCleaner.app/Contents/MacOS/MangoCleaner
+/// writes <page>-light.png and <page>-dark.png for every page in `Snapshot.pages`
+/// (the memory window drops down from the menu bar item, as when clicked), and
 /// settings-<tab>-light.png and settings-<tab>-dark.png for every Settings tab, then quits.
 /// Each PNG gets a <page>-<mode>-layout.json with the grid probes (tools/check-layout.swift).
-/// APP_SNAPSHOT_PAGES=all,starred limits the pages. Add "settings" to include Settings.
+/// APP_SNAPSHOT_PAGES=window limits the pages. Add "settings" to include Settings.
 /// Add APP_ACCENT=<id> to see the pages in another accent.
 enum Snapshot {
+    /// The pages of the memory window. Add a page when a story adds a state
+    /// that needs its own picture (docs/STORIES.md names them).
+    static let pages = ["window"]
+
+    /// Clicks MangoCleaner's own menu bar item, like a person would, and
+    /// returns the window that drops down.
+    private static func openMenuBarWindow() async -> NSWindow? {
+        let before = Set(NSApp.windows.filter(\.isVisible).map(\.windowNumber))
+        menuBarButton()?.performClick(nil)
+        try? await Task.sleep(for: .seconds(0.8))
+        return NSApp.windows.first { $0.isVisible && !before.contains($0.windowNumber) && !$0.className.contains("StatusBar") }
+    }
+
+    private static func menuBarButton() -> NSStatusBarButton? {
+        NSApp.windows
+            .filter { $0.className.contains("StatusBar") }
+            .compactMap { $0.contentView.flatMap(statusButton(in:)) }
+            .first
+    }
+
+    private static func statusButton(in view: NSView) -> NSStatusBarButton? {
+        if let button = view as? NSStatusBarButton { return button }
+        return view.subviews.lazy.compactMap(statusButton(in:)).first
+    }
+
     static func runIfRequested(model: AppModel, openSettings: OpenSettingsAction) {
         let env = ProcessInfo.processInfo.environment
         guard let dir = env["APP_SNAPSHOT"], !dir.isEmpty else { return }
@@ -32,14 +58,18 @@ enum Snapshot {
             try? await Task.sleep(for: .seconds(1.5))
             for mode in ["light", "dark"] {
                 NSApp.appearance = NSAppearance(named: mode == "light" ? .aqua : .darkAqua)
-                for page in SidebarItem.allCases where only?.contains(page.rawValue) ?? true {
-                    model.sidebar = page
-                    try? await Task.sleep(for: .seconds(0.8))
-                    capture(to: "\(dir)/\(page.rawValue)-\(mode).png")
+                for page in pages where only?.contains(page) ?? true {
+                    guard let window = await openMenuBarWindow() else {
+                        print("SNAPSHOT no menu bar window")
+                        continue
+                    }
+                    capture(to: "\(dir)/\(page)-\(mode).png", window: window)
+                    // A second click closes it, so the next click opens it again.
+                    menuBarButton()?.performClick(nil)
+                    try? await Task.sleep(for: .seconds(0.5))
                 }
             }
             if only == nil || only?.contains("settings") == true {
-                let main = NSApp.windows.first { $0.canBecomeMain && !$0.isSheet }
                 openSettings()
                 try? await Task.sleep(for: .seconds(1))
                 for mode in ["light", "dark"] {
@@ -47,7 +77,7 @@ enum Snapshot {
                     for tab in SettingsTab.allCases {
                         model.settingsTab = tab
                         try? await Task.sleep(for: .seconds(0.8))
-                        let settings = NSApp.windows.first { $0.isVisible && $0 !== main && !$0.isSheet }
+                        let settings = NSApp.windows.first { $0.isVisible && $0.canBecomeMain && !$0.isSheet }
                         capture(to: "\(dir)/settings-\(tab.rawValue)-\(mode).png", window: settings)
                     }
                 }
