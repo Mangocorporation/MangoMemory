@@ -17,6 +17,8 @@ final class SettingsSync {
     }
     /// The last time settings went to or came from iCloud, and from which Mac.
     private(set) var lastSync: (date: Date, device: String)?
+    /// Set when the file could not be saved, for the Settings footer.
+    private(set) var failed = false
 
     /// False when iCloud Drive is off.
     var available: Bool { FileManager.default.fileExists(atPath: folder.deletingLastPathComponent().path) }
@@ -113,10 +115,13 @@ final class SettingsSync {
         let synced = SyncedSettings(values: read(), modified: localModified ?? .now, device: device)
         guard let data = try? synced.encoded() else { return }
         var error: NSError?
+        var saved = false
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         NSFileCoordinator(filePresenter: watcher).coordinate(writingItemAt: file, options: .forReplacing, error: &error) { url in
-            try? data.write(to: url, options: .atomic)
+            saved = (try? data.write(to: url, options: .atomic)) != nil
         }
-        if error == nil {
+        failed = error != nil || !saved
+        if !failed {
             lastKnown = synced.values
             lastSync = (.now, device)
         }

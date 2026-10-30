@@ -120,7 +120,10 @@ struct ICloudSyncSection: View {
                 .disabled(!sync.available)
         } footer: {
             Group {
-                if !sync.available {
+                if sync.enabled, sync.failed {
+                    Text("Unable to save settings to iCloud Drive. Allow MangoCleaner in System Settings › Privacy & Security › Files & Folders.")
+                        .foregroundStyle(.red)
+                } else if !sync.available {
                     Text("Turn on iCloud Drive in System Settings › Apple Account › iCloud to sync.")
                 } else if sync.enabled, let last = sync.lastSync {
                     Text("Synced \(Text(last.date, style: .relative)) ago with \(last.device). Saved in iCloud Drive › MangoCleaner.")
