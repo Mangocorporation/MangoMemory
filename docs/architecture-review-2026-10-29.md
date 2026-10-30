@@ -77,3 +77,11 @@ New card, **Speculative**: `AppModel.init` now picks four test or real
 adapters with `if Store.isOverridden`. A `Dependencies` value (`.live`,
 `.test`) would keep that choice in one place. Worth it when a fifth seam
 arrives. Nothing reached Strong; nothing applied.
+
+## Follow-up after M4 (2026-10-30)
+
+M4 added `Shortcut` (Kit), `GlobalHotKey` (Carbon), and `MenuBarItem`, now
+shared by snapshots, the self-test, and the shortcut. Key handling moved from
+the Top Apps list to the window root, with `moveFocus` and `quitFocused` on
+`AppModel`. The test-run fakes are now one `AppModel.fakes` tuple, a first
+step toward the Speculative `Dependencies` card. Nothing reached Strong.
