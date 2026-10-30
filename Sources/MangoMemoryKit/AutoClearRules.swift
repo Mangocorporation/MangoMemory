@@ -62,12 +62,12 @@ public struct AutoClearRules: Sendable, Equatable {
 
 /// The line under the automation toggles (S-016).
 public enum AutoClearText {
-    /// "Last automatic clear 4 min ago · freed 900 MB. Next possible in 2:10."
+    /// "Last automatic clear 4 min ago · cleared 900 MB. Next possible in 2:10."
     public static func status(last: CleanResult?, nextPossible: Date?, now: Date) -> String? {
         var parts: [String] = []
         if let last {
-            let freed = last.freed >= CleanResult.noticeable ? "freed \(ByteText.string(last.freed))" : "nothing much to clear"
-            parts.append("Last automatic clear \(ago(last.date, now: now)) · \(freed).")
+            let cleared = last.cleared >= CleanResult.noticeable ? "cleared \(ByteText.string(last.cleared))" : "nothing much to clear"
+            parts.append("Last automatic clear \(ago(last.date, now: now)) · \(cleared).")
         }
         if let nextPossible {
             let seconds = max(0, Int(nextPossible.timeIntervalSince(now).rounded(.up)))

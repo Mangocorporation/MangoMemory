@@ -9,8 +9,8 @@ public enum CleanTrigger: String, Sendable {
 public struct CleanResult: Sendable, Equatable {
     public var date: Date
     public var trigger: CleanTrigger
-    public var availableBefore: UInt64
-    public var availableAfter: UInt64
+    public var fileCacheBefore: UInt64
+    public var fileCacheAfter: UInt64
     public var pressureBefore: Int
     public var pressureAfter: Int
 
@@ -20,21 +20,23 @@ public struct CleanResult: Sendable, Equatable {
     public init(date: Date, trigger: CleanTrigger, before: MemoryStats, after: MemoryStats) {
         self.date = date
         self.trigger = trigger
-        availableBefore = before.available
-        availableAfter = after.available
+        fileCacheBefore = before.fileCache
+        fileCacheAfter = after.fileCache
         pressureBefore = before.pressurePercent
         pressureAfter = after.pressurePercent
     }
 
-    /// Never negative: memory other apps took meanwhile is not our loss.
-    public var freed: UInt64 {
-        availableAfter > availableBefore ? availableAfter - availableBefore : 0
+    /// How much file cache the clear emptied. purge turns file cache into free
+    /// memory, so available memory (free + file cache) barely changes and is the
+    /// wrong measure (docs/FIXLOG.md). Never negative: cache that grew meanwhile is not our loss.
+    public var cleared: UInt64 {
+        fileCacheBefore > fileCacheAfter ? fileCacheBefore - fileCacheAfter : 0
     }
 
-    /// "Freed 1.2 GB · pressure 62 % → 48 %", or "Nothing much to clear".
+    /// "Cleared 2.1 GB · pressure 53 % → 52 %", or "Nothing much to clear".
     public var summary: String {
-        guard freed >= Self.noticeable else { return "Nothing much to clear" }
-        return "Freed \(ByteText.string(freed)) · pressure \(pressureBefore) % → \(pressureAfter) %"
+        guard cleared >= Self.noticeable else { return "Nothing much to clear" }
+        return "Cleared \(ByteText.string(cleared)) · pressure \(pressureBefore) % → \(pressureAfter) %"
     }
 }
 

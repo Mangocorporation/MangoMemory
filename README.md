@@ -35,8 +35,8 @@ MangoMemory shows what actually matters:
 - **What is using it.** The five apps using the most memory, helper processes
   included (Safari's web pages count toward Safari), with Quit right there.
 - **A real clear.** Clear File Cache runs Apple's own `/usr/sbin/purge` and
-  then tells you what it actually freed, including "Nothing much to clear"
-  when that's the truth.
+  then tells you how much file cache it actually emptied, including "Nothing
+  much to clear" when that's the truth.
 
 ## Features
 
@@ -58,7 +58,7 @@ MangoMemory shows what actually matters:
   with a dashed line at every clear.
 - **Top Apps:** hover a row for **Quit**. If an app doesn't quit within five
   seconds, it offers **Force Quit**, and asks first.
-- **Clear File Cache**, then a result line like *"Freed 1.2 GB · pressure 62 % → 48 %"*.
+- **Clear File Cache**, then a result line like *"Cleared 2.1 GB · pressure 34 % → 33 %"*.
 - **ⓘ** explains every number in plain words, including why low Free is normal.
 - **📌 Keep Window Open** turns the drop-down into a floating window on every Space.
 - A footer with what **MangoMemory itself** uses (about 20 MB and 0.0 % CPU when idle).
@@ -188,8 +188,10 @@ No. macOS fills spare memory with file cache so files open faster, and hands
 it back the moment an app needs it. Watch **pressure**, not Free.
 
 **Does clearing the file cache make my Mac faster?**
-Usually not by much, and MangoMemory says so. It helps right before something
-memory-hungry, or when pressure stays high. The cache refills as you use files.
+Usually not by much, and MangoMemory says so. The emptied cache becomes free
+memory, but macOS already counted file cache as available, so pressure
+typically moves a point or two. It helps most right before something
+memory-hungry. The cache refills as you use files.
 
 **Why isn't MangoMemory on the Mac App Store?**
 App Store apps must run in the sandbox, which forbids the root helper that

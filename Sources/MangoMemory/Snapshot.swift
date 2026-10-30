@@ -30,8 +30,9 @@ enum Snapshot {
         ("window-cleaning", { stage($0, clean: .clearing) }),
         ("window-clean-result", { model in
             var after = SampleData.stats()
-            after.free += 1_288_490_189
-            after.pressurePercent = 26
+            after.fileCache -= 2_254_857_830
+            after.free += 2_254_857_830
+            after.pressurePercent = 33
             stage(model, clean: .done(CleanResult(date: .now, trigger: .button, before: SampleData.stats(), after: after)))
         }),
         ("window-help", { model in
@@ -64,8 +65,9 @@ enum Snapshot {
     /// Settings > Automation with clearing on after high pressure, a clear 2 minutes ago, and its cooldown.
     private static func stageAutomation(_ model: AppModel) {
         var after = SampleData.stats(level: .high)
+        after.fileCache -= 943_718_400
         after.free += 943_718_400
-        after.pressurePercent = 52
+        after.pressurePercent = 66
         let result = CleanResult(date: .now.addingTimeInterval(-130), trigger: .pressure,
                                  before: SampleData.stats(level: .high), after: after)
         model.autoClear.show(result, settings: (true, false))

@@ -123,7 +123,8 @@ enum SelfTest {
         clearer.status = .notRegistered
         var readings = [SampleData.stats()]
         var after = SampleData.stats()
-        after.free += 1_288_490_189
+        after.fileCache -= 2_254_857_830
+        after.free += 2_254_857_830
         readings.append(after)
         let flow = CleanFlow(clearer: clearer) { readings.isEmpty ? nil : readings.removeFirst() }
         flow.resultDuration = .milliseconds(300)
@@ -136,7 +137,7 @@ enum SelfTest {
         clearer.status = .ready
         await flow.clear(trigger: .button)
         if case .done(let result) = flow.state {
-            check("a clear measures before and after", result.summary.hasPrefix("Freed 1.2 GB"), result.summary)
+            check("a clear measures before and after", result.summary.hasPrefix("Cleared 2.1 GB"), result.summary)
             check("the result names its trigger", result.trigger == .button)
         } else {
             check("a clear shows its result", false, "\(flow.state)")

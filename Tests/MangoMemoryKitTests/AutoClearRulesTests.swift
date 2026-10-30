@@ -77,14 +77,15 @@ func bigQuit() {
 
 @Test("The status line says when it last cleared and when it can again")
 func statusLine() {
-    var after = MemoryStats(total: 24 * gb, app: 0, wired: 0, compressed: 0, fileCache: 0, free: 0,
-                            swapUsed: 0, level: .normal, pressurePercent: 40)
-    let before = after
+    var before = MemoryStats(total: 24 * gb, app: 0, wired: 0, compressed: 0, fileCache: 0, free: 0,
+                             swapUsed: 0, level: .normal, pressurePercent: 40)
+    var after = before
+    before.fileCache = 943_718_400
     after.free = 943_718_400
     let last = CleanResult(date: start, trigger: .pressure, before: before, after: after)
     #expect(AutoClearText.status(last: last, nextPossible: start + 180, now: start + 50)
-            == "Last automatic clear just now · freed 900 MB. Next possible in 2:10.")
+            == "Last automatic clear just now · cleared 900 MB. Next possible in 2:10.")
     #expect(AutoClearText.status(last: last, nextPossible: nil, now: start + 250)
-            == "Last automatic clear 4 min ago · freed 900 MB.")
+            == "Last automatic clear 4 min ago · cleared 900 MB.")
     #expect(AutoClearText.status(last: nil, nextPossible: nil, now: start) == nil)
 }

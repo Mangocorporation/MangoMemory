@@ -1,0 +1,44 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:MangoMemory}",
+            "name": "Debug MangoMemoryHelper",
+            "target": "MangoMemoryHelper",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug MangoMemoryHelper"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:MangoMemory}",
+            "name": "Release MangoMemoryHelper",
+            "target": "MangoMemoryHelper",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release MangoMemoryHelper"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:MangoMemory}",
+            "name": "Debug MangoMemory",
+            "target": "MangoMemory",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug MangoMemory"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:MangoMemory}",
+            "name": "Release MangoMemory",
+            "target": "MangoMemory",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release MangoMemory"
+        }
+    ]
+}

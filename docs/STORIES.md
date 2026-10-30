@@ -187,13 +187,13 @@ As the user, after a clean I see the before and after free memory and pressure.
 Screens: snapshot `window-clean-result`
 Depends: S-011
 Acceptance:
-- [snap] A result line: "Freed 1.2 GB · pressure 62 % → 48 %", shown for 10 seconds (window-clean-result).
-- [unit] `CleanResult` stores trigger, freed bytes, and pressure before and after.
+- [snap] A result line: "Cleared 2.1 GB · pressure 34 % → 33 %", shown for 10 seconds (window-clean-result).
+- [unit] `CleanResult` stores trigger, file cache before and after (what was cleared), and pressure before and after.
 - [self] When less than 50 MB is freed, the line says so honestly ("Nothing much to clear").
 UX:
 - Flow: after a clear -> one line under the button for 10 s -> fades away
 - Surface: inline line (information, no action)
-- States: "Freed 1.2 GB · pressure 34 % → 26 %" with a check, or "Nothing much to clear" with an info symbol under 50 MB (window-clean-result)
+- States: "Cleared 2.1 GB · pressure 34 % → 33 %" with a check, or "Nothing much to clear" with an info symbol under 50 MB (window-clean-result)
 - Words: as above; never "boost", "optimize", or "free up"
 - Access: the line is plain text VoiceOver reads after the button
 Status: done
@@ -256,7 +256,7 @@ Acceptance:
 UX:
 - Flow: open Settings › Automation -> read the footer
 - Surface: section footer text (information, no action)
-- States: none yet: no line; after a clear: "Last automatic clear 4 min ago · freed 900 MB."; during the cooldown also "Next possible in 2:10."
+- States: none yet: no line; after a clear: "Last automatic clear 4 min ago · cleared 900 MB."; during the cooldown also "Next possible in 2:10."
 - Words: "Last automatic clear", "Next possible in" (glossary: Clear automatically, never "auto clean")
 - Access: plain text, read by VoiceOver
 Status: done

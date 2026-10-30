@@ -54,7 +54,7 @@ struct CleanSection: View {
     private func result(_ state: CleanFlow.State) -> some View {
         switch state {
         case .done(let result):
-            Label(result.summary, systemImage: result.freed >= CleanResult.noticeable ? "checkmark.circle" : "info.circle")
+            Label(result.summary, systemImage: result.cleared >= CleanResult.noticeable ? "checkmark.circle" : "info.circle")
                 .font(.callout)
                 .foregroundStyle(.secondary)
         case .failed(let message):

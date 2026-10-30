@@ -73,3 +73,10 @@ Symptom: about-dark.png was the Settings window.
 Cause: the About panel is reused for the second mode, so it was not a "new" window, and the fallback matched Settings.
 Fix: close every other window first, keep About open for both modes, and close it after.
 Rule: when capturing a system panel, close the other windows first; never pick a window by "new since".
+
+## Clear File Cache said "Nothing much to clear" after a real clear (2026-10-30)
+
+Symptom: the first real clear through the helper said "Nothing much to clear"; the next said "Freed 136 MB", with about 3 GB of file cache before.
+Cause: the result measured the change in *available* memory (free + file cache). purge turns file cache into free memory, so available hardly moves; what showed was background drift. The unit tests and sample data modeled a clear as free memory appearing from nowhere, so they agreed with the wrong measure.
+Fix: measure the file cache that was emptied: "Cleared 2.1 GB · pressure 53 % → 52 %". Tests and sample data now model what purge does (cache down, free up by the same amount).
+Rule: measure an action by the quantity it actually changes, and model fakes on the real system's behavior, not on the result you hope to show.
