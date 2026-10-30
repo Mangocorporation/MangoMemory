@@ -1,16 +1,16 @@
-# MangoCleaner architecture
+# MangoMemory architecture
 
 ## Targets
 
-- `MangoCleanerKit` — pure logic, no AppKit or SwiftUI: `MemoryStats`
+- `MangoMemoryKit` — pure logic, no AppKit or SwiftUI: `MemoryStats`
   (breakdown math from kernel counters, pressure level), `AppUsageRanking`
   (groups helper processes under the responsible app, top five), `ByteText`.
-  Unit tests in `Tests/MangoCleanerKitTests`.
-- `MangoCleaner` — the app (depends on the Kit), default MainActor isolation.
-- `MangoCleanerHelper` — a root launchd daemon registered with
+  Unit tests in `Tests/MangoMemoryKitTests`.
+- `MangoMemory` — the app (depends on the Kit), default MainActor isolation.
+- `MangoMemoryHelper` — a root launchd daemon registered with
   `SMAppService.daemon`. It exposes one XPC call, `clearFileCache`, which runs
   `/usr/sbin/purge` and takes no arguments. It accepts only callers that meet
-  `Helper.clientRequirement` (MangoCleaner signed by team SJR7785KA2).
+  `Helper.clientRequirement` (MangoMemory signed by team SJR7785KA2).
   `build.sh` embeds it in `Contents/MacOS` with its plist in
   `Contents/Library/LaunchDaemons`, signed with the hardened runtime.
 
@@ -49,7 +49,7 @@ SystemMemory: host_statistics64, sysctl, proc_pid_rusage, responsible pid (nonis
   `MemoryMonitor` counts open memory windows (drop-down and pinned).
 - The menu bar item is one image (`MenuBarLabel.image`): the menu bar shows a
   single image and ignores SwiftUI fonts.
-- `SettingsSync` mirrors every setting to iCloud Drive › MangoCleaner › Settings.json
+- `SettingsSync` mirrors every setting to iCloud Drive › MangoMemory › Settings.json
   (`SyncedSettings` in the Kit). It watches the settings with Observation, writes a
   second after a change, and watches the file with an `NSFilePresenter`. Newest wins.
   Test runs use `/tmp/<APP_STORE>-iCloud`. No iCloud entitlement or profile needed.

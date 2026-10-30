@@ -1,13 +1,13 @@
-# MangoCleaner stories
+# MangoMemory stories
 
 From `docs/BRIEF.md`, `docs/research/memory-cleaners.md`, and
 `docs/screens/INDEX.md` (reference: Memory Clean 2). Reference screenshots live
-in `docs/screens/`; MangoCleaner snapshot pages are named in each story.
+in `docs/screens/`; MangoMemory snapshot pages are named in each story.
 Decided by the agent without an interview, per "keep working".
 
 ## M1 Glance and act
 
-Done when MangoCleaner sits in the menu bar, its numbers match Activity
+Done when MangoMemory sits in the menu bar, its numbers match Activity
 Monitor, and quitting a top app from the window works. Settings survive a restart.
 
 ### S-001 Read memory stats once
@@ -33,7 +33,7 @@ UX:
 - Surface: menu bar item (always-visible status, no action needed)
 - States: first read pending or a reader error shows the plain glyph without text; Critical adds a filled glyph, not just red
 - Words: "3.4 GB" (available). No tooltip: MenuBarExtra labels ignore `.help`; the window header says the rest
-- Access: VoiceOver "MangoCleaner, memory pressure Normal, 3.4 GB available"; Normal outline template, High yellow outline, Critical filled red
+- Access: VoiceOver "MangoMemory, memory pressure Normal, 3.4 GB available"; Normal outline template, High yellow outline, Critical filled red
 Status: done
 
 ### S-003 Open the memory window from the menu bar
@@ -75,7 +75,7 @@ Depends: S-003
 Acceptance:
 - [unit] `AppUsageReader` groups helper processes under their parent app bundle and sorts by footprint (`proc_pid_rusage` `ri_phys_footprint`).
 - [self] The top app matches Activity Monitor's Memory tab top entry.
-- [snap] Rows show icon, app name, and size in GB or MB; MangoCleaner itself is never listed.
+- [snap] Rows show icon, app name, and size in GB or MB; MangoMemory itself is never listed.
 UX:
 - Flow: open the memory window -> "Top Apps" section lists five rows, live -> a row moves when its size changes, without animation jumps
 - Surface: inline list in the memory window (a place to come back to; actions come in S-006)
@@ -110,7 +110,7 @@ Acceptance:
 UX:
 - Flow: Quit sent, app still running after 5 s -> row button becomes "Force Quit" -> click -> confirmation dialog -> Force Quit closes the app, Cancel or Escape returns to the row
 - Surface: confirmation dialog (rare, destroys unsaved work, can't be undone)
-- States: app quits by itself during the dialog closes the dialog; dialog never shows for MangoCleaner itself
+- States: app quits by itself during the dialog closes the dialog; dialog never shows for MangoMemory itself
 - Words: title "Force Quit Safari?"; message "Safari isn't responding to Quit. Any unsaved changes in Safari will be lost."; buttons "Force Quit" (destructive) and "Cancel" (default)
 - Access: Escape cancels, Return is Cancel; warning tint plus the words "Force Quit"
 Status: done
@@ -120,13 +120,13 @@ As the user, I open a gear menu in the window for Settings and Quit, with live s
 Screens: 03-gear-menu.png; snapshot `gear-menu`
 Depends: S-003
 Acceptance:
-- [manual] Items: Clear File Cache (from S-013), Settings… ⌘,, separator, live stats (Free, App memory, Wired, Compressed, File cache, Swap, Total), separator, About MangoCleaner, Quit MangoCleaner ⌘Q.
+- [manual] Items: Clear File Cache (from S-013), Settings… ⌘,, separator, live stats (Free, App memory, Wired, Compressed, File cache, Swap, Total), separator, About MangoMemory, Quit MangoMemory ⌘Q.
 - [self] ⌘, opens the Settings window; ⌘Q quits.
 UX:
 - Flow: gear button in the memory window header -> menu opens -> choose an item; Escape closes (MenuBarExtra has no right-click)
 - Surface: menu (a few related commands tied to one control)
 - States: live stats are disabled items with the values from when the menu opened; Clear File Cache arrives with S-013
-- Words: "Clear File Cache", "Settings… ⌘,", stats "Free  3.4 GB" etc., "About MangoCleaner", "Quit MangoCleaner ⌘Q"; gear tooltip "Show settings and more"
+- Words: "Clear File Cache", "Settings… ⌘,", stats "Free  3.4 GB" etc., "About MangoMemory", "Quit MangoMemory ⌘Q"; gear tooltip "Show settings and more"
 - Access: gear button VoiceOver "More"; full menu keyboard navigation
 Status: done
 
@@ -137,7 +137,7 @@ Depends: S-008
 Acceptance:
 - [snap] Settings > General has a Refresh interval picker: 1, 2, 5, 10 s.
 - [unit] The value is stored in UserDefaults and read back after relaunch.
-- [self] Idle CPU of MangoCleaner stays under 0.5 % at 2 s.
+- [self] Idle CPU of MangoMemory stays under 0.5 % at 2 s.
 UX:
 - Flow: gear > Settings… or ⌘, -> Settings window opens on General -> pick Refresh interval -> applies at once, no Save button
 - Surface: Settings window (`Settings` scene), General tab: a place people come back to rarely; inline picker inside it
@@ -159,7 +159,7 @@ Acceptance:
 - [manual] Allow registers the `SMAppService.daemon`; macOS shows it in Login Items; approving it there enables cleaning.
 - [self] When the helper is missing or disabled, Clean shows the same explanation instead of failing.
 UX:
-- Flow: open the memory window -> bottom shows one sentence and "Allow Helper…" -> click registers the SMAppService daemon -> System Settings › Login Items opens; the window says "Turn on MangoCleaner in System Settings › Login Items to finish." with "Open Login Items" -> once on, the window shows Clear File Cache next time it opens
+- Flow: open the memory window -> bottom shows one sentence and "Allow Helper…" -> click registers the SMAppService daemon -> System Settings › Login Items opens; the window says "Turn on MangoMemory in System Settings › Login Items to finish." with "Open Login Items" -> once on, the window shows Clear File Cache next time it opens
 - Surface: inline in the memory window (the place the action lives), no sheet
 - States: not registered, needs approval, ready (snapshots helper-needed, helper-approval, window)
 - Words: "Clearing the file cache needs a small helper with admin rights. macOS asks you once." / "Allow Helper…" / "Open Login Items"
@@ -214,7 +214,7 @@ Status: done
 
 ## M3 Automation
 
-Done when MangoCleaner can clean on its own without nagging.
+Done when MangoMemory can clean on its own without nagging.
 
 ### S-014 Clear automatically when pressure stays high
 As the user, I turn on Auto clean and it clears the file cache when pressure stays at warn for a set time.
@@ -272,7 +272,7 @@ Acceptance:
 UX:
 - Flow: pressure turns Critical -> one notification "Memory pressure is Critical", "Safari uses the most memory: 6.1 GB." -> "Quit Safari" button quits it like the Top Apps Quit -> none again for 30 minutes unless pressure climbs higher
 - Surface: system notification (information people may act on); settings in Settings › Notifications
-- States: permission asked the first time it posts; denied: nothing posts; no app found: "Open MangoCleaner to see what uses memory."
+- States: permission asked the first time it posts; denied: nothing posts; no app found: "Open MangoMemory to see what uses memory."
 - Words: "Notify when pressure is Critical" (on), "Notify when pressure is High" (off), "Quit <app>"
 - Access: notifications are read by VoiceOver; the button is in the notification's actions
 Status: done
@@ -340,18 +340,18 @@ UX:
 - Access: rows carry the sentence as their VoiceOver hint
 Status: done
 
-### S-022 See MangoCleaner's own footprint
-As the user, I see how much CPU and memory MangoCleaner itself uses.
+### S-022 See MangoMemory's own footprint
+As the user, I see how much CPU and memory MangoMemory itself uses.
 Screens: snapshot `window`
 Depends: S-005
 Acceptance:
-- [snap] A small footer line "MangoCleaner: 0.2 % CPU · 28 MB".
-- [manual] Idle footprint stays under 40 MB: `footprint $(pgrep -x MangoCleaner)` after a minute idle read 20 MB, 0.0 % CPU (2026-10-30).
+- [snap] A small footer line "MangoMemory: 0.2 % CPU · 28 MB".
+- [manual] Idle footprint stays under 40 MB: `footprint $(pgrep -x MangoMemory)` after a minute idle read 20 MB, 0.0 % CPU (2026-10-30).
 UX:
 - Flow: open the window -> footer line at the bottom
 - Surface: inline caption (information)
 - States: shown after the second reading in an open window (CPU needs two readings)
-- Words: "MangoCleaner: 0.2 % CPU · 28 MB"
+- Words: "MangoMemory: 0.2 % CPU · 28 MB"
 - Access: plain text
 Status: done
 
@@ -378,9 +378,9 @@ Screens: 07-prefs-general.png; snapshot `settings-general`
 Depends: S-008
 Acceptance:
 - [snap] "Open at login" toggle, off by default.
-- [manual] With it on, MangoCleaner is in the menu bar after logging out and in.
+- [manual] With it on, MangoMemory is in the menu bar after logging out and in.
 UX:
-- Flow: Settings › General › "Open at login" -> macOS adds MangoCleaner to Login Items
+- Flow: Settings › General › "Open at login" -> macOS adds MangoMemory to Login Items
 - Surface: inline toggle
 - States: off by default; reflects System Settings if changed there
 - Words: "Open at login"
@@ -403,21 +403,21 @@ UX:
 Status: done
 
 ### S-026 See an About window
-As the user, I open About MangoCleaner from the gear menu.
+As the user, I open About MangoMemory from the gear menu.
 Screens: 12-prefs-about.png; snapshot `about`
 Depends: S-008
 Acceptance:
 - [snap] Standard About panel with the app icon, name, version, and copyright. No social links.
 UX:
-- Flow: gear › About MangoCleaner -> standard About panel
+- Flow: gear › About MangoMemory -> standard About panel
 - Surface: the system About panel
 - States: icon, name, version (build), "© 2026 MangoCorp"
-- Words: "About MangoCleaner"
+- Words: "About MangoMemory"
 - Access: system panel
 Status: done
 
 ### S-027 App icon
-As the user, I see a MangoCleaner icon in Settings, About, and notifications.
+As the user, I see a MangoMemory icon in Settings, About, and notifications.
 Screens: snapshot `about`
 Acceptance:
 - [snap] Liquid Glass icon in all looks (made with the app-icon skill).
@@ -439,7 +439,7 @@ Acceptance:
 - [self] A change here reaches the file; a newer file applies; an older one doesn't; a coordinated write (as iCloud Drive does) is picked up by the watcher.
 - [manual] With two Macs on one iCloud account, a change on one shows on the other within a minute.
 UX:
-- Flow: Settings › General › "Sync settings with iCloud" (on) -> change anything -> the file in iCloud Drive › MangoCleaner updates -> other Macs apply it
+- Flow: Settings › General › "Sync settings with iCloud" (on) -> change anything -> the file in iCloud Drive › MangoMemory updates -> other Macs apply it
 - Surface: inline toggle with a footer line
 - States: iCloud Drive off: toggle disabled, "Turn on iCloud Drive in System Settings › Apple Account › iCloud to sync."; synced: "Synced 2 min ago with <Mac>."
 - Words: "Sync settings with iCloud"

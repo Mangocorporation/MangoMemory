@@ -1,7 +1,7 @@
-# MangoCleaner design system
+# MangoMemory design system
 
 Apple's look (see the `mac-design` skill), plus a few tokens in
-`Sources/MangoCleaner/UI/`. Views use tokens, never raw colors, radii, or durations.
+`Sources/MangoMemory/UI/`. Views use tokens, never raw colors, radii, or durations.
 
 ## Accent — `Theme.swift`
 

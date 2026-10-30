@@ -1,9 +1,9 @@
-# MangoCleaner
+# MangoMemory
 
 A light, honest menu bar memory app for one Mac user: see memory pressure at a
 glance, find the app eating RAM, quit it, or clear the file cache in one click.
 
-Bundle id: `com.mangocorp.mangocleaner` (decided by the agent).
+Bundle id: `com.mangocorp.mangomemory` (decided by the agent).
 
 ## Replaces
 Memory Clean 2 (FIPLAB): Intel-only, unmaintained, upsells "Extreme Clean",

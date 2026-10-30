@@ -2,7 +2,7 @@
 
 Survey: 2,076 lines in 24 files; largest `Snapshot.swift` (176) and
 `TopAppsList.swift` (156). No duplicated private types. Pure logic (breakdown
-math, Top Apps ranking, byte text) is in `MangoCleanerKit` with unit tests.
+math, Top Apps ranking, byte text) is in `MangoMemoryKit` with unit tests.
 Two real seams with two adapters each: `MemorySource` (system, sample) and
 `AppQuitter` (system, fake). One fix-log entry (CPU and memory from a hidden
 window redrawing). Verdict: the code is in good shape; nothing is Strong.
@@ -32,7 +32,7 @@ Plan: 1) protocol and fake with snapshots, 2) helper target and build.sh embeddi
 
 ## Quit flow rules into the Kit  [Speculative]
 
-Files: Sources/MangoCleaner/Memory/Quitter.swift (92 lines).
+Files: Sources/MangoMemory/Memory/Quitter.swift (92 lines).
 Signal: pure logic inside a @MainActor type.
 Problem: the Quit → Quitting… → Force Quit rules are tested only by the
 self-test, with real sleeps.

@@ -7,7 +7,7 @@ and captured per window with `screencapture -l`. Look only: no clean was run,
 no setting was changed.
 
 Structure and behavior only. Do not reuse its text, icon, colors-as-brand, or
-name in MangoCleaner.
+name in MangoMemory.
 
 ## 01-status-item.png
 

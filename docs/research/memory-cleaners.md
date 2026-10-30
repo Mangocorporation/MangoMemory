@@ -1,6 +1,6 @@
 # Memory cleaners and monitors
 
-Research for MangoCleaner. Done 2026-10-29.
+Research for MangoMemory. Done 2026-10-29.
 [V] verified in a source, [K] from knowledge, [U] unverified, test first.
 
 Question: what makes the best Memory Clean 2–style memory app on the Mac in 2026?

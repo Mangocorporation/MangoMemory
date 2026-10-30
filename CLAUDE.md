@@ -1,4 +1,4 @@
-# MangoCleaner
+# MangoMemory
 
 A native macOS menu bar app in SwiftUI (`MenuBarExtra`, window style,
 `LSUIElement`). It shows memory pressure, the top apps by memory, and clears
@@ -8,24 +8,24 @@ the file cache. No database and no server: settings live in UserDefaults
 
 ## Layout
 
-- `Sources/MangoCleaner/` the app. `App.swift` has the menu bar extra, Settings, and `Store` (which defaults to use). `ContentView.swift` has the menu bar label and the memory window.
-- `Sources/MangoCleanerKit/` rules and data logic with no SwiftUI. Tests in `Tests/MangoCleanerKitTests/`.
+- `Sources/MangoMemory/` the app. `App.swift` has the menu bar extra, Settings, and `Store` (which defaults to use). `ContentView.swift` has the menu bar label and the memory window.
+- `Sources/MangoMemoryKit/` rules and data logic with no SwiftUI. Tests in `Tests/MangoMemoryKitTests/`.
 - `Package.swift` a Swift package. There is no Xcode project.
-- `build.sh` builds, signs, and installs `~/Applications/MangoCleaner.app`.
+- `build.sh` builds, signs, and installs `~/Applications/MangoMemory.app`.
 - `Icon/AppIcon.icon` the app icon, an Icon Composer file (JSON plus SVG layers). `build.sh` compiles it with `tools/make_icon.sh`; `tools/icon_review.sh` renders every look into one PNG.
 - `docs/` the brief, the screen index, and the user stories, when they exist.
 
 ## Build and check
 
 - Build and install: `./build.sh`. Add `--open` to restart the app with the new build. The build shows warnings; fix them.
-- Unit tests: `swift test --scratch-path ~/Library/Developer/MangoCleaner/test-build`.
+- Unit tests: `swift test --scratch-path ~/Library/Developer/MangoMemory/test-build`.
 - Self-test (the app's real functions on test settings): `tools/selftest.sh`. Exit 0 when every check passes. Add a check for every story with logic in `SelfTest.swift`.
 - After every UI change, take snapshots with sample data and look at them: `tools/snap.sh`.
-  It writes `/tmp/MangoCleaner-shots/<page>-light.png` and `-dark.png` for every page in `Snapshot.pages` (the memory window, opened by clicking the app's own menu bar item), and `settings-<tab>-light.png` and `-dark.png` for every Settings tab, then quits. `APP_SNAPSHOT_PAGES=window,settings tools/snap.sh` limits the pages.
+  It writes `/tmp/MangoMemory-shots/<page>-light.png` and `-dark.png` for every page in `Snapshot.pages` (the memory window, opened by clicking the app's own menu bar item), and `settings-<tab>-light.png` and `-dark.png` for every Settings tab, then quits. `APP_SNAPSHOT_PAGES=window,settings tools/snap.sh` limits the pages.
   For a new window state, popover, or alert named in a story, add a page to `Snapshot.pages` and set the state before the capture.
-- Snapshots and the self-test refuse to run without `APP_STORE`; they then use the `com.mangocorp.mangocleaner.test` defaults suite, never the real settings.
+- Snapshots and the self-test refuse to run without `APP_STORE`; they then use the `com.mangocorp.mangomemory.test` defaults suite, never the real settings.
 - Never quit, force quit, or clear the cache for real in a test run: inject fakes for app lists and the helper.
-- Then check the grid: `tools/grid-lint.sh` and `swift tools/check-layout.swift /tmp/MangoCleaner-shots/*-layout.json`. Both print PASS.
+- Then check the grid: `tools/grid-lint.sh` and `swift tools/check-layout.swift /tmp/MangoMemory-shots/*-layout.json`. Both print PASS.
 - A change is done when the build has no errors, the grid checks pass, and you looked at the light and dark snapshots.
 
 ## Design rules

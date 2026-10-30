@@ -1,6 +1,6 @@
 #!/bin/zsh
-# Builds MangoCleaner and installs it to ~/Applications/MangoCleaner.app.
-# Build products live in ~/Library/Developer/MangoCleaner, outside the repo
+# Builds MangoMemory and installs it to ~/Applications/MangoMemory.app.
+# Build products live in ~/Library/Developer/MangoMemory, outside the repo
 # (and outside Dropbox or iCloud, which would try to sync them).
 #
 # Usage: ./build.sh            release build, install
@@ -8,7 +8,7 @@
 #        ./build.sh --open     install, then quit the running copy and open the new one
 set -euo pipefail
 here=${0:A:h}
-name="MangoCleaner"
+name="MangoMemory"
 scratch="$HOME/Library/Developer/$name/build"
 config=release
 [[ " $* " == *" --debug "* ]] && config=debug
@@ -40,7 +40,7 @@ cp "$bin" "$app/Contents/MacOS/$name"
 # The helper that clears the file cache, and its launchd plist (SMAppService.daemon).
 cp "$scratch/$config/${name}Helper" "$app/Contents/MacOS/${name}Helper"
 mkdir -p "$app/Contents/Library/LaunchDaemons"
-cp "$here/Helper/com.mangocorp.mangocleaner.helper.plist" "$app/Contents/Library/LaunchDaemons/"
+cp "$here/Helper/com.mangocorp.mangomemory.helper.plist" "$app/Contents/Library/LaunchDaemons/"
 sed -e "s/__BUILD__/$(date +%Y%m%d%H%M)/" "$here/Info.plist.in" > "$app/Contents/Info.plist"
 # The icon: Icon/AppIcon.icon -> Resources/Assets.car + AppIcon.icns, rebuilt when it changed.
 if [[ -d "$here/Icon/AppIcon.icon" ]]; then
@@ -52,7 +52,7 @@ if [[ -d "$here/Icon/AppIcon.icon" ]]; then
 fi
 xattr -cr "$app"
 # Sign the helper first, with the hardened runtime launchd daemons need, then the app.
-codesign --force --options runtime --identifier com.mangocorp.mangocleaner.helper --sign "$identity" \
+codesign --force --options runtime --identifier com.mangocorp.mangomemory.helper --sign "$identity" \
   "$app/Contents/MacOS/${name}Helper" 2>&1 | grep -v "replacing existing signature" || true
 codesign --force --sign "$identity" "$app" 2>&1 | grep -v "replacing existing signature" || true
 echo "installed $app (signed: ${identity})"

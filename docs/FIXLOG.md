@@ -66,3 +66,10 @@ Symptom: none seen yet; found while adding iCloud sync, which reads and sets the
 Cause: ThemeStore read and wrote "appearance.accent" in UserDefaults.standard, not Store.defaults.
 Fix: ThemeStore uses Store.defaults, like every other setting.
 Rule: every setting goes through Store.defaults; grep for UserDefaults.standard after adding one.
+
+## The dark About snapshot showed Settings (2026-10-30)
+
+Symptom: about-dark.png was the Settings window.
+Cause: the About panel is reused for the second mode, so it was not a "new" window, and the fallback matched Settings.
+Fix: close every other window first, keep About open for both modes, and close it after.
+Rule: when capturing a system panel, close the other windows first; never pick a window by "new since".

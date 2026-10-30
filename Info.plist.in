@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
-<key>CFBundleIdentifier</key><string>com.mangocorp.mangocleaner</string>
-<key>CFBundleName</key><string>MangoCleaner</string>
-<key>CFBundleDisplayName</key><string>MangoCleaner</string>
-<key>CFBundleExecutable</key><string>MangoCleaner</string>
+<key>CFBundleIdentifier</key><string>com.mangocorp.mangomemory</string>
+<key>CFBundleName</key><string>MangoMemory</string>
+<key>CFBundleDisplayName</key><string>MangoMemory</string>
+<key>CFBundleExecutable</key><string>MangoMemory</string>
 <key>CFBundleIconFile</key><string>AppIcon</string>
 <key>CFBundleIconName</key><string>AppIcon</string>
 <key>CFBundlePackageType</key><string>APPL</string>

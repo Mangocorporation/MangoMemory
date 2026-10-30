@@ -1,4 +1,4 @@
-# MangoCleaner glossary
+# MangoMemory glossary
 
 One name per thing. Buttons, menus, tooltips, notifications, and VoiceOver
 use these words only.
@@ -7,7 +7,7 @@ use these words only.
 
 | Term | Means | Not |
 | --- | --- | --- |
-| Menu bar item | The glyph and text MangoCleaner shows in the menu bar | status item, widget, icon |
+| Menu bar item | The glyph and text MangoMemory shows in the menu bar | status item, widget, icon |
 | Memory window | The window that drops down from the menu bar item | popover, panel, dashboard |
 | Memory pressure | How hard macOS works to find memory, as a level and a percent | memory load, RAM usage, health |
 | Normal / High / Critical | The three pressure levels (green, yellow, red) | OK, warning, tight, danger, low/high memory |
@@ -38,9 +38,9 @@ use these words only.
 | Keep Window Open | Float the memory window outside the menu bar, on every Space | pin, detach |
 | Return to Menu Bar | Close the floating window; the memory window drops down from the menu bar item again | unpin, reset window position |
 | Menu bar shows | What the menu bar item shows next to its glyph: Available memory, Pressure %, or Icon only | status text |
-| Open at login | Start MangoCleaner when you log in | launch at login, start at login |
+| Open at login | Start MangoMemory when you log in | launch at login, start at login |
 | Sync settings with iCloud | Keep every setting the same on all Macs signed in to the same iCloud account | iCloud sync, cloud backup |
 | Clear automatically | Clear File Cache on its own when pressure stays high or a big app quits | auto clean, smart clean |
 | Settings… | Open the Settings window (⌘,) | Preferences, options |
-| About MangoCleaner | Open the About window | info |
-| Quit MangoCleaner | Quit this app (⌘Q) | exit |
+| About MangoMemory | Open the About window | info |
+| Quit MangoMemory | Quit this app (⌘Q) | exit |
