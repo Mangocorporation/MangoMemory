@@ -35,7 +35,8 @@ final class MemoryMonitor {
     /// "MangoMemory: 0.2 % CPU · 28 MB", read only while the window is open (S-022).
     private(set) var selfUsageLine: String?
     @ObservationIgnored private var history = PressureHistory()
-    @ObservationIgnored private var lastCPU: (cpu: TimeInterval, at: TimeInterval)?
+    /// CPU readings while the window is open, for a steady figure (SelfUsageText.span).
+    @ObservationIgnored private var cpuReadings: [(cpu: TimeInterval, at: TimeInterval)] = []
     /// Seconds between readings (Settings > General). Saved in Store.defaults.
     var refreshInterval: Int {
         didSet {
@@ -48,7 +49,11 @@ final class MemoryMonitor {
     /// the menu bar item needs just the totals.
     var windowIsOpen = false {
         // Fresh Top Apps at once on open. Not when stopped: snapshots stage their own numbers.
-        didSet { if windowIsOpen && !oldValue && loop != nil { Task { await refresh() } } }
+        didSet {
+            // Start the CPU figure fresh: the last readings are from the last time it was open.
+            if windowIsOpen && !oldValue { cpuReadings.removeAll() }
+            if windowIsOpen && !oldValue && loop != nil { Task { await refresh() } }
+        }
     }
 
     /// Called with every reading, open window or not (automatic clearing).
@@ -131,9 +136,9 @@ final class MemoryMonitor {
 
     private func updateSelfUsage(_ own: (cpu: TimeInterval, footprint: UInt64)) {
         let now = ProcessInfo.processInfo.systemUptime
-        defer { lastCPU = (own.cpu, now) }
-        guard let last = lastCPU, now > last.at else { return }
-        let percent = max(0, (own.cpu - last.cpu) / (now - last.at) * 100)
+        cpuReadings.append((own.cpu, now))
+        cpuReadings.removeAll { now - $0.at > SelfUsageText.span * 2 }
+        guard let percent = SelfUsageText.cpuPercent(cpuReadings) else { return }
         let line = SelfUsageText.line(cpuPercent: percent, footprint: own.footprint)
         if line != selfUsageLine { selfUsageLine = line }
     }

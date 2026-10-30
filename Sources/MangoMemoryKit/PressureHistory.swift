@@ -73,6 +73,19 @@ extension PressureLevel {
 
 /// "MangoMemory: 0.2 % CPU · 28 MB" (S-022).
 public enum SelfUsageText {
+    /// How far back the CPU figure looks: long enough to smooth out a hover or a
+    /// redraw, short enough to follow a real change. Close to Activity Monitor.
+    public static let span: TimeInterval = 10
+
+    /// CPU % from (CPU seconds used, uptime) readings, oldest first, over the last
+    /// `span` seconds. Nil until there are two readings.
+    public static func cpuPercent(_ readings: [(cpu: TimeInterval, at: TimeInterval)]) -> Double? {
+        guard let last = readings.last else { return nil }
+        let first = readings.first { last.at - $0.at <= span } ?? last
+        guard last.at > first.at else { return nil }
+        return max(0, (last.cpu - first.cpu) / (last.at - first.at) * 100)
+    }
+
     public static func line(cpuPercent: Double, footprint: UInt64) -> String {
         "MangoMemory: \(String(format: "%.1f", cpuPercent)) % CPU · \(ByteText.string(footprint))"
     }

@@ -45,3 +45,16 @@ func perMinute() {
 func selfUsage() {
     #expect(SelfUsageText.line(cpuPercent: 0.24, footprint: 29_360_128) == "MangoMemory: 0.2 % CPU · 28 MB")
 }
+
+@Test("The CPU figure averages the last 10 seconds, so a short burst doesn't jump it")
+func cpuAverage() {
+    // 2 seconds apart; one burst of 0.16 s CPU between 4 and 6 s, otherwise 0.01 s each.
+    let readings: [(cpu: TimeInterval, at: TimeInterval)] = [
+        (0.00, 0), (0.01, 2), (0.02, 4), (0.18, 6), (0.19, 8), (0.20, 10), (0.21, 12),
+    ]
+    #expect(SelfUsageText.cpuPercent(Array(readings.prefix(1))) == nil)
+    // The 2-second figure right after the burst would read 8 %.
+    #expect(abs(SelfUsageText.cpuPercent(Array(readings[2...3]))! - 8) < 0.001)
+    // Over the last 10 seconds (2 to 12 s): 0.20 s of CPU in 10 s = 2 %.
+    #expect(abs(SelfUsageText.cpuPercent(readings)! - 2) < 0.001)
+}
