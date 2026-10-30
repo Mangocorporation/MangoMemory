@@ -10,6 +10,13 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/Mangocorporation/MangoMemory/releases/latest"><b>⬇︎ Download the latest release</b></a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/Mangocorporation/MangoMemory/releases/latest"><img src="https://img.shields.io/github/v/release/Mangocorporation/MangoMemory?label=version" alt="Latest version" align="center"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/Mangocorporation/MangoMemory" alt="MIT license" align="center"></a>
+</p>
+
+<p align="center">
   macOS 26 Tahoe or later · Apple silicon · SwiftUI · No accounts, no tracking, no upsell
 </p>
 
@@ -99,7 +106,9 @@ MangoMemory shows what actually matters:
 MangoMemory ships outside the App Store, signed with Developer ID and
 notarized by Apple, so it opens without warnings.
 
-1. Unzip `MangoMemory-<version>.zip` and move **MangoMemory.app** to Applications.
+1. Download `MangoMemory-<version>.zip` from the
+   [latest release](https://github.com/Mangocorporation/MangoMemory/releases/latest),
+   unzip it, and move **MangoMemory.app** to Applications.
 2. Open it. It lives in the menu bar; there's no Dock icon.
 3. To clear the file cache, click **Allow Helper…** in the window, then turn
    MangoMemory on in **System Settings › General › Login Items & Extensions**. macOS asks
@@ -202,3 +211,7 @@ real thing.
 Turn the helper off in System Settings › General › Login Items & Extensions, quit
 MangoMemory (gear › Quit MangoMemory, or ⌘Q in the window), and move it to
 the Trash.
+
+## License
+
+MangoMemory is released under the [MIT License](LICENSE). © 2026 MangoCorp.
