@@ -36,6 +36,7 @@ enum SelfTest {
             readsRealApps()
             await quitFlow()
             await cleanFlow()
+            await autoClear()
             refreshInterval(model)
 
             print(failures == 0 ? "SELFTEST PASS \(count) checks" : "SELFTEST FAIL \(failures) of \(count) checks")
@@ -136,6 +137,42 @@ enum SelfTest {
         clearer.fails = true
         await flow.clear(trigger: .menu)
         check("a helper error shows inline", flow.state == .failed("Unable to clear the file cache. The helper didn't respond."))
+    }
+
+    /// S-014, S-015: a simulated pressure stream clears once per cooldown,
+    /// a big app quitting clears, and the settings are saved. Fake helper only.
+    private static func autoClear() async {
+        let clearer = FakeCacheClearer()
+        let flow = CleanFlow(clearer: clearer) { SampleData.stats() }
+        let auto = AutoClear(cleanFlow: flow) { [] }
+        auto.whenPressureHigh = true
+        auto.highFor = 60
+        let start = Date.now
+        var started: [Task<Void, Never>] = []
+        for second in stride(from: 0.0, through: 200, by: 2) {
+            if let task = auto.reading(.high, at: start + second) {
+                started.append(task)
+                await task.value
+            }
+        }
+        check("pressure high for 1 minute clears once in the cooldown", started.count == 1 && clearer.clears == 1,
+              "\(started.count) started, \(clearer.clears) cleared")
+        if let task = auto.reading(.high, at: start + 250) { await task.value }
+        check("after the cooldown, it clears again", clearer.clears == 2)
+        check("the last automatic clear is shown", auto.lastResult?.trigger == .pressure)
+        check("Clear automatically is saved", Store.defaults.bool(forKey: "auto.pressure"))
+
+        let quitClearer = FakeCacheClearer()
+        let quitFlow = CleanFlow(clearer: quitClearer) { SampleData.stats() }
+        let afterQuit = AutoClear(cleanFlow: quitFlow) { SampleData.apps }
+        afterQuit.whenPressureHigh = false
+        afterQuit.afterBigQuit = true
+        afterQuit.setAppSizes(SampleData.apps)
+        check("a small app quitting does not clear", afterQuit.appQuit(pid: SampleData.apps[3].pid) == nil)
+        if let task = afterQuit.appQuit(pid: SampleData.apps[0].pid) { await task.value }
+        check("a big app quitting clears", quitClearer.clears == 1 && afterQuit.lastResult?.trigger == .afterQuit)
+        afterQuit.afterBigQuit = false
+        auto.whenPressureHigh = false
     }
 
     /// S-009: the refresh interval is saved.

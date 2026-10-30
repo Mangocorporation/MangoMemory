@@ -50,6 +50,16 @@ enum Snapshot {
         model.focusedApp = focus
     }
 
+    /// Settings > Automation with clearing on after high pressure, a clear 2 minutes ago, and its cooldown.
+    private static func stageAutomation(_ model: AppModel) {
+        var after = SampleData.stats(level: .high)
+        after.free += 943_718_400
+        after.pressurePercent = 52
+        let result = CleanResult(date: .now.addingTimeInterval(-130), trigger: .pressure,
+                                 before: SampleData.stats(level: .high), after: after)
+        model.autoClear.show(result, settings: (true, false))
+    }
+
     /// Clicks MangoCleaner's own menu bar item, like a person would, and
     /// returns the window that drops down.
     /// On a cold start after a fresh build the item can ignore the first clicks:
@@ -126,6 +136,7 @@ enum Snapshot {
                 captureRegion(to: "\(dir)/\(page.name).png", of: menuBarButton()?.window)
             }
             if only == nil || only?.contains("settings") == true {
+                stageAutomation(model)
                 openSettings()
                 try? await Task.sleep(for: .seconds(1))
                 for mode in ["light", "dark"] {

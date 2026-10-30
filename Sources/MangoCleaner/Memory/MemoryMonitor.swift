@@ -41,6 +41,9 @@ final class MemoryMonitor {
         didSet { if windowIsOpen && !oldValue && loop != nil { Task { await refresh() } } }
     }
 
+    /// Called with every reading, open window or not (automatic clearing).
+    var onStats: ((MemoryStats) -> Void)?
+
     private let source: any MemorySource
     private var loop: Task<Void, Never>?
 
@@ -83,6 +86,15 @@ final class MemoryMonitor {
         if let stats, stats != self.stats { self.stats = stats }
         if windowIsOpen, let stats, stats != windowStats { windowStats = stats }
         if let top, top != topApps { topApps = top }
+        if let stats { onStats?(stats) }
+    }
+
+    /// The biggest running apps, read off the main thread. For measuring an app when it quits.
+    func appSizes() async -> [AppUsage] {
+        let apps = Self.runningApps()
+        let source = source
+        let me = ProcessInfo.processInfo.processIdentifier
+        return await Task.detached(priority: .utility) { source.topApps(10, apps: apps, excluding: me) }.value
     }
 
     /// Snapshot mode sets the numbers it wants to show.

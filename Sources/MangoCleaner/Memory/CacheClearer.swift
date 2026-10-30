@@ -117,6 +117,8 @@ final class CleanFlow {
     private(set) var helperStatus: HelperStatus
     /// How long the result line stays.
     var resultDuration: Duration = .seconds(10)
+    /// Called after every clear that finished, whatever started it.
+    var onCleared: ((CleanResult) -> Void)?
 
     private let clearer: any CacheClearer
     private let measure: () async -> MemoryStats?
@@ -158,7 +160,9 @@ final class CleanFlow {
             // The file cache shrinks over a moment; measure after it settles.
             try? await Task.sleep(for: .seconds(1))
             if let before, let after = await measure() {
-                show(.done(CleanResult(date: .now, trigger: trigger, before: before, after: after)))
+                let result = CleanResult(date: .now, trigger: trigger, before: before, after: after)
+                show(.done(result))
+                onCleared?(result)
             } else {
                 show(.idle)
             }

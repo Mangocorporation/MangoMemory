@@ -7,6 +7,7 @@ final class AppModel {
     let monitor: MemoryMonitor
     let quitFlow: QuitFlow
     let cleanFlow: CleanFlow
+    let autoClear: AutoClear
     /// The Top Apps row under the pointer or selected with the arrow keys.
     var focusedApp: Int32?
     /// Settings reopens on the last tab. Test and snapshot runs leave it alone.
@@ -30,6 +31,8 @@ final class AppModel {
                 return stats
             }
         }
+        autoClear = AutoClear(cleanFlow: cleanFlow) { [monitor] in await monitor.appSizes() }
+        monitor.onStats = { [weak autoClear] stats in autoClear?.reading(stats.level) }
         monitor.start()
     }
 }

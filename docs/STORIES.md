@@ -224,7 +224,13 @@ Acceptance:
 - [snap] Settings > Automation: "Clear automatically when pressure stays high" toggle (off by default) and a duration picker (30 s, 1 min, 5 min).
 - [unit] The trigger fires only after the level has been warn or critical for the full duration, then waits a 3-minute cooldown.
 - [self] A simulated pressure stream triggers exactly one clean per cooldown.
-Status: todo
+UX:
+- Flow: Settings (⌘,) › Automation › "Clear automatically when pressure stays high" -> pick 30 seconds, 1 minute, or 5 minutes -> clears run on their own; the result line shows in the memory window
+- Surface: inline toggle and picker in a Settings tab (changes one value)
+- States: picker disabled while the toggle is off; helper not ready: footer text plus "Allow Helper…" or "Open Login Items"
+- Words: "Clear automatically when pressure stays high", "Pressure high for"
+- Access: Tab between the toggle and the picker; VoiceOver reads the label text
+Status: done
 
 ### S-015 Clear automatically after a big app quits
 As the user, I turn on "Clean after a heavy app quits" so memory frees when I close a big app.
@@ -233,7 +239,13 @@ Depends: S-014
 Acceptance:
 - [snap] Toggle (off by default) with a threshold picker: apps over 1, 2, or 4 GB.
 - [unit] Fires when an app that was over the threshold in the last snapshot terminates; respects the shared cooldown.
-Status: todo
+UX:
+- Flow: Settings › Automation › "Clear automatically after a big app quits" -> pick 1, 2, or 4 GB -> quitting a bigger app clears
+- Surface: inline toggle and picker under the pressure toggle
+- States: picker disabled while off; shares the 3-minute cooldown with every clear, the button too
+- Words: "Clear automatically after a big app quits", "Big app uses more than"
+- Access: as S-014
+Status: done
 
 ### S-016 See when the file cache was last cleared automatically
 As the user, I see when the last automatic clean ran and what it freed.
@@ -241,7 +253,13 @@ Screens: 10-prefs-advanced.png; snapshot `settings-automation`
 Depends: S-014
 Acceptance:
 - [snap] A line under the toggles: "Last auto clean 4 min ago · freed 900 MB" or "Next possible in 2:10".
-Status: todo
+UX:
+- Flow: open Settings › Automation -> read the footer
+- Surface: section footer text (information, no action)
+- States: none yet: no line; after a clear: "Last automatic clear 4 min ago · freed 900 MB."; during the cooldown also "Next possible in 2:10."
+- Words: "Last automatic clear", "Next possible in" (glossary: Clear automatically, never "auto clean")
+- Access: plain text, read by VoiceOver
+Status: done
 
 ### S-017 Get a quiet alert when pressure is critical
 As the user, I get one notification when pressure turns critical, naming the top app.
