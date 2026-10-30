@@ -10,6 +10,24 @@
     <language>en</language>
     <!-- releases, newest first -->
     <item>
+      <title>MangoMemory 0.1.4</title>
+      <pubDate>Fri, 30 Oct 2026 17:25:23 GMT</pubDate>
+      <sparkle:version>202610301424</sparkle:version>
+      <sparkle:shortVersionString>0.1.4</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/Mangocorporation/MangoMemory/releases/tag/v0.1.4</sparkle:fullReleaseNotesLink>
+      <description sparkle:format="markdown"><![CDATA[
+A fix for downloading MangoMemory by hand.
+
+## Fixed
+
+- The download from GitHub could show "MangoMemory.app Not Opened" after you unzipped it with some tools, even though the app is signed and notarized. The zip no longer contains the hidden files that caused it, and every release is now checked by unzipping it the plain way before it ships.
+
+Nothing else changed. If MangoMemory updated itself before, it keeps working the same way.
+]]></description>
+      <enclosure url="https://github.com/Mangocorporation/MangoMemory/releases/download/v0.1.4/MangoMemory-0.1.4.zip" type="application/octet-stream" sparkle:edSignature="JSbMVRw8421bymcxJEYmgNoYhz3o7EDWmll6K7paD5MbWLHSuM4hM20HzCCLwpYJf8tms2EPU0WMiYLJOFO3BQ==" length="3679666"/>
+    </item>
+    <item>
       <title>MangoMemory 0.1.3</title>
       <pubDate>Fri, 30 Oct 2026 15:50:28 GMT</pubDate>
       <sparkle:version>202610301250</sparkle:version>
