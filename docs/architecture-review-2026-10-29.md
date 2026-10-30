@@ -68,7 +68,7 @@ The two Speculative cards stand; nothing new reached Strong.
 
 ## Follow-up after M3 (2026-10-30)
 
-Survey: 2,560 lines; largest `SelfTest.swift` and `Snapshot.swift` (both
+Survey: 2,945 lines; largest `SelfTest.swift` and `Snapshot.swift` (both
 under 300). M3 added two Kit rule types (`AutoClearRules`,
 `PressureAlertRules`, unit tested with an injected clock) and a fourth real
 seam, `Notifier` (system, fake). One fix-log entry (clock mix in the cooldown).
