@@ -54,6 +54,19 @@ final class MemoryMonitor {
     /// Called with every reading, open window or not (automatic clearing).
     var onStats: ((MemoryStats) -> Void)?
 
+    /// The drop-down and the pinned window can both be open for a moment.
+    private var openWindows = 0
+
+    func windowAppeared() {
+        openWindows += 1
+        windowIsOpen = true
+    }
+
+    func windowDisappeared() {
+        openWindows = max(0, openWindows - 1)
+        windowIsOpen = openWindows > 0
+    }
+
     private let source: any MemorySource
     private var loop: Task<Void, Never>?
 

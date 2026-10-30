@@ -38,12 +38,17 @@ enum Snapshot {
             stage(model)
             model.showingHelp = true
         }),
+        ("window-pinned", { model in
+            stage(model)
+            model.pinned = true
+        }),
         ("window-clean-error", { stage($0, clean: .failed("Unable to clear the file cache. The helper didn't respond.")) }),
     ]
 
     /// The menu bar item at each pressure level (S-002).
     static let statusPages: [(name: String, level: PressureLevel)] =
-        [("status-normal", .normal), ("status-high", .high), ("status-critical", .critical)]
+        [("status-normal", .normal), ("status-high", .high), ("status-critical", .critical),
+         ("status-pressure", .normal), ("status-icon-only", .normal), ("status-large", .normal)]
 
     private static func stage(_ model: AppModel, level: PressureLevel = .normal, focus: Int32? = nil,
                               helper: HelperStatus = .ready, clean: CleanFlow.State = .idle) {
@@ -113,6 +118,13 @@ enum Snapshot {
                 NSApp.appearance = NSAppearance(named: mode == "light" ? .aqua : .darkAqua)
                 for page in pages where only?.contains(page.name) ?? true {
                     page.setup(model)
+                    if model.pinned {
+                        try? await Task.sleep(for: .seconds(1.5))
+                        capture(to: "\(dir)/\(page.name)-\(mode).png", window: PinnedWindow.window)
+                        model.pinned = false
+                        try? await Task.sleep(for: .seconds(0.5))
+                        continue
+                    }
                     guard let window = await openMenuBarWindow() else {
                         print("SNAPSHOT no menu bar window")
                         continue
@@ -134,9 +146,13 @@ enum Snapshot {
             // The menu bar follows the desktop, not the app's appearance: one picture each.
             for page in statusPages where only?.contains(page.name) ?? true {
                 stage(model, level: page.level)
+                model.menuBarText = page.name == "status-pressure" ? .pressure : page.name == "status-icon-only" ? .iconOnly : .available
+                model.largeMenuBarText = page.name == "status-large"
                 try? await Task.sleep(for: .seconds(0.5))
                 captureRegion(to: "\(dir)/\(page.name).png", of: MenuBarItem.button?.window)
             }
+            model.menuBarText = .available
+            model.largeMenuBarText = false
             if only == nil || only?.contains("settings") == true {
                 stageAutomation(model)
                 openSettings()
@@ -149,6 +165,19 @@ enum Snapshot {
                         let settings = NSApp.windows.first { $0.isVisible && $0.canBecomeMain && !$0.isSheet }
                         capture(to: "\(dir)/settings-\(tab.rawValue)-\(mode).png", window: settings)
                     }
+                }
+            }
+            if only == nil || only?.contains("about") == true {
+                // The standard About panel (S-026), with the icon (S-027).
+                for mode in ["light", "dark"] {
+                    NSApp.appearance = NSAppearance(named: mode == "light" ? .aqua : .darkAqua)
+                    let before = Set(NSApp.windows.map(\.windowNumber))
+                    NSApp.orderFrontStandardAboutPanel(nil)
+                    try? await Task.sleep(for: .seconds(0.8))
+                    let about = NSApp.windows.first { $0.isVisible && !before.contains($0.windowNumber) }
+                        ?? NSApp.windows.first { $0.isVisible && $0.className == "NSPanel" }
+                    capture(to: "\(dir)/about-\(mode).png", window: about)
+                    about?.close()
                 }
             }
             print("SNAPSHOT done \(dir)")

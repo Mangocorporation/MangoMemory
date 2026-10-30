@@ -52,3 +52,10 @@ Symptom: "swap matches sysctl vm.swapusage" failed once in three runs with 8 GB 
 Cause: it compared the exact text ("7993.25M") of two reads taken a moment apart, while swap was moving.
 Fix: parse the number and allow 3 %, like the other memory checks.
 Rule: compare live system numbers with a tolerance, never as exact text.
+
+## Large menu bar text looked like Regular (2026-10-30)
+
+Symptom: Settings › General › Text size › Large changed nothing in the menu bar.
+Cause: a MenuBarExtra label ignores SwiftUI fonts, and shows only the first Image of an HStack.
+Fix: draw the glyph and the text into one NSImage (template at Normal, colored glyph and label-colored text at High and Critical).
+Rule: in a MenuBarExtra label, put everything in one image; check each label variant on a status snapshot.

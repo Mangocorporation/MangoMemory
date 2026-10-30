@@ -364,7 +364,13 @@ Depends: S-002
 Acceptance:
 - [snap] Settings > General: "Menu bar shows" picker (Free memory, Pressure %, Icon only) and Text size (Regular, Large).
 - [unit] Each choice renders the expected status title.
-Status: todo
+UX:
+- Flow: Settings › General › "Menu bar shows" (Available memory, Pressure %, Icon only) and "Text size" (Regular, Large) -> the item changes at once
+- Surface: inline pickers in Settings
+- States: Text size disabled for Icon only; High and Critical keep their colored glyph in every choice
+- Words: "Menu bar shows", "Available memory", "Pressure %", "Icon only", "Text size", "Regular", "Large"
+- Access: VoiceOver always reads level and available memory, whatever the item shows
+Status: done
 
 ### S-024 Start at login
 As the user, I turn on Open at login.
@@ -373,7 +379,13 @@ Depends: S-008
 Acceptance:
 - [snap] "Open at login" toggle, off by default.
 - [manual] With it on, MangoCleaner is in the menu bar after logging out and in.
-Status: todo
+UX:
+- Flow: Settings › General › "Open at login" -> macOS adds MangoCleaner to Login Items
+- Surface: inline toggle
+- States: off by default; reflects System Settings if changed there
+- Words: "Open at login"
+- Access: standard toggle
+Status: done
 
 ### S-025 Keep the window open while I work
 As the user, I pin the window so it stays visible when I click elsewhere.
@@ -381,8 +393,14 @@ Screens: 07-prefs-general.png; snapshot `window-pinned`
 Depends: S-003
 Acceptance:
 - [snap] A pin button in the window header; pinned, the window detaches and floats.
-- [self] Reset window position from the gear menu puts it back under the status item.
-Status: todo
+- [self] Return to Menu Bar (gear menu, pin button, or Escape) closes the floating window, and the drop-down opens under the status item again.
+UX:
+- Flow: pin button in the window header ("Keep Window Open") -> the drop-down closes and a floating window opens in the same place -> pin.slash button, gear › "Return to Menu Bar", Escape, or the close button put it back
+- Surface: a floating window on every Space (a tool kept open beside the work)
+- States: pinned window has only a close button; it is movable by its background
+- Words: "Keep Window Open", "Return to Menu Bar"
+- Access: both buttons have tooltips; Escape returns it
+Status: done
 
 ### S-026 See an About window
 As the user, I open About MangoCleaner from the gear menu.
@@ -390,14 +408,26 @@ Screens: 12-prefs-about.png; snapshot `about`
 Depends: S-008
 Acceptance:
 - [snap] Standard About panel with the app icon, name, version, and copyright. No social links.
-Status: todo
+UX:
+- Flow: gear › About MangoCleaner -> standard About panel
+- Surface: the system About panel
+- States: icon, name, version (build), "© 2026 MangoCorp"
+- Words: "About MangoCleaner"
+- Access: system panel
+Status: done
 
 ### S-027 App icon
 As the user, I see a MangoCleaner icon in Settings, About, and notifications.
 Screens: snapshot `about`
 Acceptance:
 - [snap] Liquid Glass icon in all looks (made with the app-icon skill).
-Status: todo
+UX:
+- Flow: shown in About, Settings, notifications, and Finder
+- Surface: Icon Composer file Icon/AppIcon.icon (done with the app-icon skill before M1)
+- States: Default, Dark, Tinted, Clear looks
+- Words: none
+- Access: none
+Status: done
 
 ## Coverage
 

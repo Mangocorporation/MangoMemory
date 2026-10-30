@@ -8,18 +8,20 @@ import SwiftUI
 struct MenuBarLabel: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openSettings) private var openSettings
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
 
     var body: some View {
         let stats = model.monitor.stats
-        HStack(spacing: Space.xs) {
-            Image(nsImage: Self.glyph(for: stats?.level))
-            if let stats {
-                Text(ByteText.string(stats.available))
-                    .monospacedDigit()
-            }
-        }
+        // The menu bar shows one image and ignores SwiftUI fonts: draw glyph and text together.
+        Image(nsImage: Self.image(level: stats?.level, text: model.menuBarText.text(for: stats),
+                                  large: model.largeMenuBarText))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Self.spoken(stats))
+        // The label lives as long as the app, so it opens and closes the pinned window.
+        .onChange(of: model.pinned) { _, pinned in
+            pinned ? openWindow(id: PinnedWindow.id) : dismissWindow(id: PinnedWindow.id)
+        }
         .task {
             SelfTest.runIfRequested(model: model)
             Snapshot.runIfRequested(model: model, openSettings: openSettings)
@@ -42,6 +44,31 @@ struct MenuBarLabel: View {
         if let color { config = config.applying(.init(paletteColors: [color])) }
         let image = base.withSymbolConfiguration(config) ?? base
         image.isTemplate = color == nil
+        return image
+    }
+
+    /// The glyph and the text in one image. At Normal it is a template, which
+    /// macOS tints for a light or dark menu bar. At High and Critical the glyph
+    /// keeps its color and the text uses the label color, drawn when shown.
+    static func image(level: PressureLevel?, text: String?, large: Bool) -> NSImage {
+        let glyph = glyph(for: level)
+        guard let text else { return glyph }
+        let template = glyph.isTemplate
+        let font = NSFont.monospacedDigitSystemFont(ofSize: large ? 15 : 13, weight: .regular)
+        let string = NSAttributedString(string: text, attributes: [
+            .font: font, .foregroundColor: template ? NSColor.black : NSColor.labelColor,
+        ])
+        let textSize = string.size()
+        let gap: CGFloat = Space.xs
+        let height = max(glyph.size.height, ceil(textSize.height))
+        let size = NSSize(width: ceil(glyph.size.width + gap + textSize.width), height: height)
+        let image = NSImage(size: size, flipped: false) { _ in
+            glyph.draw(in: NSRect(x: 0, y: (height - glyph.size.height) / 2,
+                                  width: glyph.size.width, height: glyph.size.height))
+            string.draw(at: NSPoint(x: glyph.size.width + gap, y: (height - textSize.height) / 2))
+            return true
+        }
+        image.isTemplate = template
         return image
     }
 

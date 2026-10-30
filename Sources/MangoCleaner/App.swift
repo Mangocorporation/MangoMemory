@@ -26,6 +26,18 @@ struct MangoCleanerApp: App {
         }
         .menuBarExtraStyle(.window)
 
+        Window("Memory", id: PinnedWindow.id) {
+            MemoryWindow(pinned: true)
+                .environment(model)
+                .themed()
+                .background(PinnedWindow.Hook())
+                .onDisappear { model.pinned = false }
+        }
+        .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentSize)
+        .defaultLaunchBehavior(.suppressed)
+        .restorationBehavior(.disabled)
+
         Settings {
             SettingsView()
                 .environment(model)

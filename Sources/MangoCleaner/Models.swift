@@ -1,6 +1,7 @@
 import Foundation
 import MangoCleanerKit
 import Observation
+import ServiceManagement
 
 /// App-wide state that the menu bar label, the memory window, and Settings share.
 @Observable
@@ -29,6 +30,34 @@ final class AppModel {
     var confirming: AppUsage?
     /// The popover that explains each number (S-021).
     var showingHelp = false
+    /// The memory window floats on its own, outside the menu bar (S-025).
+    var pinned = false
+
+    /// What the menu bar item shows next to its glyph (S-023).
+    var menuBarText: MenuBarText = MenuBarText(rawValue: Store.defaults.string(forKey: "menuBar.text") ?? "") ?? .available {
+        didSet { Store.defaults.set(menuBarText.rawValue, forKey: "menuBar.text") }
+    }
+    var largeMenuBarText: Bool = Store.defaults.bool(forKey: "menuBar.large") {
+        didSet { Store.defaults.set(largeMenuBarText, forKey: "menuBar.large") }
+    }
+
+    /// Open at login (S-024), through SMAppService. Test runs only pretend.
+    var openAtLogin: Bool {
+        get {
+            access(keyPath: \.openAtLogin)
+            return Store.isOverridden ? testOpenAtLogin : SMAppService.mainApp.status == .enabled
+        }
+        set {
+            withMutation(keyPath: \.openAtLogin) {
+                if Store.isOverridden {
+                    testOpenAtLogin = newValue
+                } else {
+                    try? newValue ? SMAppService.mainApp.register() : SMAppService.mainApp.unregister()
+                }
+            }
+        }
+    }
+    @ObservationIgnored private var testOpenAtLogin = false
     /// Settings reopens on the last tab. Test and snapshot runs leave it alone.
     var settingsTab: SettingsTab = SettingsTab(rawValue: Store.defaults.string(forKey: "settings.tab") ?? "") ?? .general {
         didSet { Store.defaults.set(settingsTab.rawValue, forKey: "settings.tab") }

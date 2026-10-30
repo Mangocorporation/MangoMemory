@@ -41,6 +41,7 @@ enum SelfTest {
             await alerts(model)
             await keyboard(model)
             await insight(model)
+            await polish(model)
             refreshInterval(model)
 
             print(failures == 0 ? "SELFTEST PASS \(count) checks" : "SELFTEST FAIL \(failures) of \(count) checks")
@@ -270,6 +271,34 @@ enum SelfTest {
         // running app with `footprint` (docs/STORIES.md, S-022).
         let footprint = SystemMemory.selfUsage().footprint
         check("reads MangoCleaner's own footprint", footprint > 0, ByteText.string(footprint))
+    }
+
+    /// S-023 to S-025: menu bar text, Open at login (pretend), and the pinned window.
+    private static func polish(_ model: AppModel) async {
+        model.menuBarText = .pressure
+        model.largeMenuBarText = true
+        check("the menu bar choice is saved",
+              Store.defaults.string(forKey: "menuBar.text") == "pressure" && Store.defaults.bool(forKey: "menuBar.large"))
+        model.menuBarText = .available
+        model.largeMenuBarText = false
+        model.openAtLogin = true
+        check("Open at login turns on (test runs only pretend)", model.openAtLogin)
+        model.openAtLogin = false
+
+        model.pinned = true
+        var pinned: NSWindow?
+        for _ in 1...30 where pinned == nil {
+            try? await Task.sleep(for: .milliseconds(100))
+            pinned = PinnedWindow.window
+        }
+        try? await Task.sleep(for: .milliseconds(300))
+        check("Keep Window Open floats the window", pinned?.level == .floating)
+        model.pinned = false
+        try? await Task.sleep(for: .milliseconds(500))
+        check("Return to Menu Bar closes the floating window", PinnedWindow.window == nil)
+        let window = await openWindow()
+        check("the window drops down from the menu bar item again", window != nil)
+        if window != nil { MenuBarItem.button?.performClick(nil) }
     }
 
     /// S-009: the refresh interval is saved.

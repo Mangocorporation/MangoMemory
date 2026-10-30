@@ -5,6 +5,8 @@ import SwiftUI
 /// The window that drops down from the menu bar item (S-003): pressure,
 /// the breakdown, and Top Apps.
 struct MemoryWindow: View {
+    /// True in the window pinned outside the menu bar (S-025).
+    var pinned = false
     @Environment(AppModel.self) private var model
     @Environment(\.openSettings) private var openSettings
     /// The window takes the keys as soon as it opens (S-019): nothing else has focus.
@@ -12,7 +14,7 @@ struct MemoryWindow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.lg) {
-            PressureHeader(stats: model.monitor.windowStats)
+            PressureHeader(stats: model.monitor.windowStats, pinned: pinned)
                 .gridProbe("header", area: "window")
             if let stats = model.monitor.windowStats {
                 MemoryBreakdown(stats: stats, history: model.monitor.windowHistory)
@@ -43,7 +45,10 @@ struct MemoryWindow: View {
         .onKeyPress(.downArrow) { model.moveFocus(1); return .handled }
         .onKeyPress(.upArrow) { model.moveFocus(-1); return .handled }
         .onKeyPress(.return) { model.quitFocused(); return .handled }
-        .onKeyPress(.escape) { MenuBarItem.button?.performClick(nil); return .handled }
+        .onKeyPress(.escape) {
+            if pinned { model.pinned = false } else { MenuBarItem.button?.performClick(nil) }
+            return .handled
+        }
         // The gear menu's shortcuts work only while it is open; these work any time.
         .onKeyPress(keys: ["k", ",", "q"]) { press in
             guard press.modifiers == .command else { return .ignored }
@@ -56,16 +61,17 @@ struct MemoryWindow: View {
         }
         .onAppear {
             takesKeys = true
-            model.monitor.windowIsOpen = true
+            model.monitor.windowAppeared()
             model.cleanFlow.refreshStatus()
         }
-        .onDisappear { model.monitor.windowIsOpen = false }
+        .onDisappear { model.monitor.windowDisappeared() }
     }
 }
 
 /// Level word, caption, and the available and percent line, with the gear menu.
 struct PressureHeader: View {
     let stats: MemoryStats?
+    var pinned = false
 
     var body: some View {
         HStack(alignment: .top) {
@@ -90,8 +96,9 @@ struct PressureHeader: View {
             }
             .accessibilityElement(children: .combine)
             Spacer()
+            PinButton(pinned: pinned)
             HelpButton()
-            GearMenu(stats: stats)
+            GearMenu(stats: stats, pinned: pinned)
         }
     }
 
@@ -117,6 +124,7 @@ struct PressureHeader: View {
 /// Settings, live numbers, About, and Quit (S-008).
 struct GearMenu: View {
     let stats: MemoryStats?
+    var pinned = false
     @Environment(AppModel.self) private var model
     @Environment(\.openSettings) private var openSettings
 
@@ -127,6 +135,9 @@ struct GearMenu: View {
                 .disabled(model.cleanFlow.isClearing || model.cleanFlow.helperStatus != .ready)
             Button("Settings…") { openSettings(); NSApp.activate() }
                 .keyboardShortcut(",")
+            if pinned {
+                Button("Return to Menu Bar") { model.pinned = false }
+            }
             if let stats {
                 Divider()
                 ForEach(MemoryPart.allCases) { part in
@@ -152,5 +163,28 @@ struct GearMenu: View {
         .fixedSize()
         .help("Show settings and more")
         .accessibilityLabel("More")
+    }
+}
+
+/// Keep Window Open: the window floats on its own until Return to Menu Bar (S-025).
+struct PinButton: View {
+    let pinned: Bool
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        Button(pinned ? "Return to Menu Bar" : "Keep Window Open",
+               systemImage: pinned ? "pin.slash" : "pin") {
+            if pinned {
+                model.pinned = false
+            } else {
+                // Close the drop-down; the pinned window opens where it was.
+                MenuBarItem.button?.performClick(nil)
+                model.pinned = true
+            }
+        }
+        .labelStyle(.iconOnly)
+        .buttonStyle(.borderless)
+        .foregroundStyle(.secondary)
+        .help(pinned ? "Put the window back under the menu bar item" : "Keep this window open while you work in other apps")
     }
 }

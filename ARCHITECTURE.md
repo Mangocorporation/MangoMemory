@@ -44,6 +44,11 @@ SystemMemory: host_statistics64, sysctl, proc_pid_rusage, responsible pid (nonis
   Their rules are value types in the Kit with the clock passed in, so unit tests never wait.
 - `MenuBarItem.toggle()` clicks the app's own status item: the one way the global
   shortcut (`GlobalHotKey`, Carbon), snapshots, and the self-test open the window.
+- The pinned window is a `Window` scene (`PinnedWindow.id`). `MenuBarLabel`, which
+  lives as long as the app, opens and closes it when `AppModel.pinned` changes.
+  `MemoryMonitor` counts open memory windows (drop-down and pinned).
+- The menu bar item is one image (`MenuBarLabel.image`): the menu bar shows a
+  single image and ignores SwiftUI fonts.
 - One 3-minute cooldown covers every clear. Automatic clears start it when they
   begin; clears from the button or the menu start it when they finish.
 

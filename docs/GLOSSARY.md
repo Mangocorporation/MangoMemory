@@ -35,6 +35,10 @@ use these words only.
 | Automation | The Settings tab for Clear automatically | Advanced, auto |
 | Notifications | The Settings tab for alerts when pressure rises | alerts, warnings |
 | Memory window shortcut | The keys that open and close the memory window from any app (⌃⌥M) | hotkey, global key |
+| Keep Window Open | Float the memory window outside the menu bar, on every Space | pin, detach |
+| Return to Menu Bar | Close the floating window; the memory window drops down from the menu bar item again | unpin, reset window position |
+| Menu bar shows | What the menu bar item shows next to its glyph: Available memory, Pressure %, or Icon only | status text |
+| Open at login | Start MangoCleaner when you log in | launch at login, start at login |
 | Clear automatically | Clear File Cache on its own when pressure stays high or a big app quits | auto clean, smart clean |
 | Settings… | Open the Settings window (⌘,) | Preferences, options |
 | About MangoCleaner | Open the About window | info |

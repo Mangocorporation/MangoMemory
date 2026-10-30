@@ -1,3 +1,4 @@
+import MangoCleanerKit
 import SwiftUI
 
 /// The Settings window (Command-Comma). One tab per topic, at most about
@@ -76,6 +77,17 @@ struct GeneralSettings: View {
                 Text("Faster refresh uses more energy.")
                     .foregroundStyle(.secondary)
             }
+        }
+        Section {
+            Picker("Menu bar shows", selection: $model.menuBarText) {
+                ForEach(MenuBarText.allCases, id: \.self) { Text($0.title).tag($0) }
+            }
+            Picker("Text size", selection: $model.largeMenuBarText) {
+                Text("Regular").tag(false)
+                Text("Large").tag(true)
+            }
+            .disabled(model.menuBarText == .iconOnly)
+            Toggle("Open at login", isOn: $model.openAtLogin)
         }
         Section {
             LabeledContent("Memory window shortcut") {
