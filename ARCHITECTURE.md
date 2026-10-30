@@ -7,14 +7,21 @@
   (groups helper processes under the responsible app, top five), `ByteText`.
   Unit tests in `Tests/MangoCleanerKitTests`.
 - `MangoCleaner` — the app (depends on the Kit), default MainActor isolation.
+- `MangoCleanerHelper` — a root launchd daemon registered with
+  `SMAppService.daemon`. It exposes one XPC call, `clearFileCache`, which runs
+  `/usr/sbin/purge` and takes no arguments. It accepts only callers that meet
+  `Helper.clientRequirement` (MangoCleaner signed by team SJR7785KA2).
+  `build.sh` embeds it in `Contents/MacOS` with its plist in
+  `Contents/Library/LaunchDaemons`, signed with the hardened runtime.
 
 ## Layers in the app
 
 ```text
-Views (MenuBarLabel, MemoryWindow, MemoryBreakdown, TopAppsList, SettingsView)
-  -> AppModel (monitor, quitFlow, focusedApp, settingsTab)
+Views (MenuBarLabel, MemoryWindow, MemoryBreakdown, TopAppsList, CleanSection, SettingsView)
+  -> AppModel (monitor, quitFlow, cleanFlow, focusedApp, settingsTab)
     -> MemoryMonitor -> MemorySource  [SystemMemorySource | SampleMemorySource]
     -> QuitFlow      -> AppQuitter    [SystemQuitter | FakeQuitter]
+    -> CleanFlow     -> CacheClearer  [HelperCacheClearer (XPC) | FakeCacheClearer]
 SystemMemory: host_statistics64, sysctl, proc_pid_rusage, responsible pid (nonisolated)
 ```
 
@@ -24,6 +31,8 @@ SystemMemory: host_statistics64, sysctl, proc_pid_rusage, responsible pid (nonis
   (`APP_STORE` set) always use the sample source.
 - `AppQuitter`: real `NSRunningApplication` or a fake that records requests.
   Test runs never quit real apps.
+- `CacheClearer`: the helper over XPC, or a fake. Test runs never run purge
+  and never register the helper.
 
 ## Rules
 

@@ -13,6 +13,8 @@ let package = Package(
             // App code runs on the main thread unless you say otherwise.
             swiftSettings: [.defaultIsolation(MainActor.self)]
         ),
+        // The root helper that runs purge (SMAppService.daemon). build.sh embeds it.
+        .executableTarget(name: "MangoCleanerHelper", dependencies: ["MangoCleanerKit"]),
         .testTarget(name: "MangoCleanerKitTests", dependencies: ["MangoCleanerKit"]),
     ]
 )

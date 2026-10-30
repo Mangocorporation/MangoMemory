@@ -158,7 +158,13 @@ Acceptance:
 - [snap] The window explains in one sentence why the helper is needed and has an Allow button.
 - [manual] Allow registers the `SMAppService.daemon`; macOS shows it in Login Items; approving it there enables cleaning.
 - [self] When the helper is missing or disabled, Clean shows the same explanation instead of failing.
-Status: todo
+UX:
+- Flow: open the memory window -> bottom shows one sentence and "Allow Helper…" -> click registers the SMAppService daemon -> System Settings › Login Items opens; the window says "Turn on MangoCleaner in System Settings › Login Items to finish." with "Open Login Items" -> once on, the window shows Clear File Cache next time it opens
+- Surface: inline in the memory window (the place the action lives), no sheet
+- States: not registered, needs approval, ready (snapshots helper-needed, helper-approval, window)
+- Words: "Clearing the file cache needs a small helper with admin rights. macOS asks you once." / "Allow Helper…" / "Open Login Items"
+- Access: one prominent button per state; VoiceOver reads the sentence then the button
+Status: done
 
 ### S-011 Clear the file cache in one click
 As the user, I click Clear File Cache in the window and the helper runs `purge`.
@@ -168,17 +174,29 @@ Acceptance:
 - [snap] A full-width button at the bottom of the window; while running it shows a progress indicator and is disabled.
 - [self] The helper runs only `/usr/sbin/purge`, takes no arguments from the app, and returns its exit code.
 - [manual] The window stays responsive during the clean.
-Status: todo
+UX:
+- Flow: click Clear File Cache or ⌘K, or gear › Clear File Cache -> button shows a spinner and "Clearing File Cache…", disabled -> result line (S-012)
+- Surface: full-width prominent button at the bottom of the memory window (the one primary action)
+- States: clearing (window-cleaning); error inline in red with a triangle: "Unable to clear the file cache. The helper didn't respond." (window-clean-error)
+- Words: "Clear File Cache", "Clearing File Cache…"; tooltip "Empty the file cache now (⌘K). macOS refills it as you open files."
+- Access: dark text on the Mango fill (Palette.onAccent); the spinner has the words next to it
+Status: done
 
 ### S-012 See what a clean freed
 As the user, after a clean I see the before and after free memory and pressure.
 Screens: snapshot `window-clean-result`
 Depends: S-011
 Acceptance:
-- [snap] A result line: "Freed 1.2 GB · pressure 62 % → 48 %", shown for 10 seconds.
+- [snap] A result line: "Freed 1.2 GB · pressure 62 % → 48 %", shown for 10 seconds (window-clean-result).
 - [unit] `CleanResult` stores trigger, freed bytes, and pressure before and after.
 - [self] When less than 50 MB is freed, the line says so honestly ("Nothing much to clear").
-Status: todo
+UX:
+- Flow: after a clear -> one line under the button for 10 s -> fades away
+- Surface: inline line (information, no action)
+- States: "Freed 1.2 GB · pressure 34 % → 26 %" with a check, or "Nothing much to clear" with an info symbol under 50 MB (window-clean-result)
+- Words: as above; never "boost", "optimize", or "free up"
+- Access: the line is plain text VoiceOver reads after the button
+Status: done
 
 ### S-013 Clear File Cache from the gear menu
 As the user, I choose Clear File Cache from the gear menu.
@@ -186,7 +204,13 @@ Screens: 03-gear-menu.png; snapshot `gear-menu`
 Depends: S-011, S-008
 Acceptance:
 - [self] The menu item runs the same clean as the button and shows the same result.
-Status: todo
+UX:
+- Flow: gear › Clear File Cache (⌘K) -> same flow and result as the button
+- Surface: menu item (same command as the button)
+- States: disabled while clearing or while the helper is not ready
+- Words: "Clear File Cache"
+- Access: full keyboard menu navigation
+Status: done
 
 ## M3 Automation
 

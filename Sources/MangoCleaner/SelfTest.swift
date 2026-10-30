@@ -35,6 +35,7 @@ enum SelfTest {
             readsRealMemory()
             readsRealApps()
             await quitFlow()
+            await cleanFlow()
             refreshInterval(model)
 
             print(failures == 0 ? "SELFTEST PASS \(count) checks" : "SELFTEST FAIL \(failures) of \(count) checks")
@@ -102,6 +103,39 @@ enum SelfTest {
         flow.forceQuit(stubborn)
         check("Force Quit closes the app", quitter.forceQuitRequests == [stubborn.pid] && flow.states[stubborn.pid] == nil)
         check("the confirmation names the app", ForceQuitText.title(stubborn) == "Force Quit Xcode?")
+    }
+
+    /// S-010 to S-013: Clear File Cache through the helper seam. Fake helper only.
+    private static func cleanFlow() async {
+        let clearer = FakeCacheClearer()
+        clearer.status = .notRegistered
+        var readings = [SampleData.stats()]
+        var after = SampleData.stats()
+        after.free += 1_288_490_189
+        readings.append(after)
+        let flow = CleanFlow(clearer: clearer) { readings.isEmpty ? nil : readings.removeFirst() }
+        flow.resultDuration = .milliseconds(300)
+
+        await flow.clear(trigger: .button)
+        check("without the helper, nothing is cleared", clearer.clears == 0 && flow.state == .idle)
+        flow.allowHelper()
+        check("Allow Helper registers it and waits for approval", flow.helperStatus == .needsApproval)
+
+        clearer.status = .ready
+        await flow.clear(trigger: .button)
+        if case .done(let result) = flow.state {
+            check("a clear measures before and after", result.summary.hasPrefix("Freed 1.2 GB"), result.summary)
+            check("the result names its trigger", result.trigger == .button)
+        } else {
+            check("a clear shows its result", false, "\(flow.state)")
+        }
+        check("the helper ran once", clearer.clears == 1)
+        try? await Task.sleep(for: .milliseconds(500))
+        check("the result line goes away", flow.state == .idle)
+
+        clearer.fails = true
+        await flow.clear(trigger: .menu)
+        check("a helper error shows inline", flow.state == .failed("Unable to clear the file cache. The helper didn't respond."))
     }
 
     /// S-009: the refresh interval is saved.

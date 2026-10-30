@@ -20,11 +20,16 @@ struct MemoryWindow: View {
                 // The divider sits in the gap, so sections stay on the 4 pt grid.
                 .padding(.top, Space.lg)
                 .overlay(alignment: .top) { Divider() }
+            CleanSection()
+                .gridProbe("clean", area: "window")
         }
         .padding(Space.margin)
         .gridArea("window")
         .frame(width: 320)
-        .onAppear { model.monitor.windowIsOpen = true }
+        .onAppear {
+            model.monitor.windowIsOpen = true
+            model.cleanFlow.refreshStatus()
+        }
         .onDisappear { model.monitor.windowIsOpen = false }
     }
 }
@@ -82,10 +87,14 @@ struct PressureHeader: View {
 /// Settings, live numbers, About, and Quit (S-008).
 struct GearMenu: View {
     let stats: MemoryStats?
+    @Environment(AppModel.self) private var model
     @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         Menu {
+            Button("Clear File Cache") { Task { await model.cleanFlow.clear(trigger: .menu) } }
+                .keyboardShortcut("k")
+                .disabled(model.cleanFlow.isClearing || model.cleanFlow.helperStatus != .ready)
             Button("Settings…") { openSettings(); NSApp.activate() }
                 .keyboardShortcut(",")
             if let stats {

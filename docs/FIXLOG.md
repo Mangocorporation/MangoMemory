@@ -15,3 +15,13 @@ change; no `numericText` on live numbers. Now 0.4 % CPU and 15 MB closed,
 1.8 % CPU and 20 MB open.
 Rule: Never animate values that refresh on a timer, and never let a hidden
 MenuBarExtra window observe live data; measure CPU and footprint after every view change.
+
+## 2026-10-29 Snapshots missed the first pages after a fresh build
+
+Symptom: "SNAPSHOT no menu bar window" for window-light, window-high-light, and
+window-critical-light; every later page worked.
+Cause: on a cold start after a new build, the menu bar item ignored the first
+clicks, and the snapshot waited a fixed 0.8 s once.
+Fix: `openMenuBarWindow` polls for the window every 100 ms for 2 s and clicks
+again, up to three times.
+Rule: In snapshot and test tools, wait for a condition with a timeout and retry; never one fixed sleep.

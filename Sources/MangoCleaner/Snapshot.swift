@@ -25,14 +25,26 @@ enum Snapshot {
             model.quitFlow.show(.refused, for: SampleData.apps[0].pid)
             model.quitFlow.show(.quitting, for: SampleData.apps[1].pid)
         }),
+        ("helper-needed", { stage($0, helper: .notRegistered) }),
+        ("helper-approval", { stage($0, helper: .needsApproval) }),
+        ("window-cleaning", { stage($0, clean: .clearing) }),
+        ("window-clean-result", { model in
+            var after = SampleData.stats()
+            after.free += 1_288_490_189
+            after.pressurePercent = 26
+            stage(model, clean: .done(CleanResult(date: .now, trigger: .button, before: SampleData.stats(), after: after)))
+        }),
+        ("window-clean-error", { stage($0, clean: .failed("Unable to clear the file cache. The helper didn't respond.")) }),
     ]
 
     /// The menu bar item at each pressure level (S-002).
     static let statusPages: [(name: String, level: PressureLevel)] =
         [("status-normal", .normal), ("status-high", .high), ("status-critical", .critical)]
 
-    private static func stage(_ model: AppModel, level: PressureLevel = .normal, focus: Int32? = nil) {
+    private static func stage(_ model: AppModel, level: PressureLevel = .normal, focus: Int32? = nil,
+                              helper: HelperStatus = .ready, clean: CleanFlow.State = .idle) {
         model.monitor.stop()
+        model.cleanFlow.show(clean, helper: helper)
         model.monitor.show(SampleData.stats(level: level), topApps: SampleData.apps)
         for app in SampleData.apps { model.quitFlow.show(nil, for: app.pid) }
         model.focusedApp = focus
@@ -40,11 +52,25 @@ enum Snapshot {
 
     /// Clicks MangoCleaner's own menu bar item, like a person would, and
     /// returns the window that drops down.
+    /// On a cold start after a fresh build the item can ignore the first clicks:
+    /// poll for the window, and click again if it does not come.
     private static func openMenuBarWindow() async -> NSWindow? {
         let before = Set(NSApp.windows.filter(\.isVisible).map(\.windowNumber))
-        menuBarButton()?.performClick(nil)
-        try? await Task.sleep(for: .seconds(0.8))
-        return NSApp.windows.first { $0.isVisible && !before.contains($0.windowNumber) && !$0.className.contains("StatusBar") }
+        func opened() -> NSWindow? {
+            NSApp.windows.first { $0.isVisible && !before.contains($0.windowNumber) && !$0.className.contains("StatusBar") }
+        }
+        for _ in 1...3 {
+            menuBarButton()?.performClick(nil)
+            for _ in 1...20 {
+                try? await Task.sleep(for: .milliseconds(100))
+                if let window = opened() {
+                    // Let the content lay out and settle before the capture.
+                    try? await Task.sleep(for: .milliseconds(500))
+                    return window
+                }
+            }
+        }
+        return nil
     }
 
     private static func menuBarButton() -> NSStatusBarButton? {
