@@ -8,6 +8,9 @@ final class AppModel {
     let quitFlow: QuitFlow
     let cleanFlow: CleanFlow
     let autoClear: AutoClear
+    let alerts: PressureAlerts
+    /// What the alerts posted, in test runs.
+    let fakeNotifier: FakeNotifier?
     /// The Top Apps row under the pointer or selected with the arrow keys.
     var focusedApp: Int32?
     /// Settings reopens on the last tab. Test and snapshot runs leave it alone.
@@ -32,7 +35,21 @@ final class AppModel {
             }
         }
         autoClear = AutoClear(cleanFlow: cleanFlow) { [monitor] in await monitor.appSizes() }
-        monitor.onStats = { [weak autoClear] stats in autoClear?.reading(stats.level) }
+        let notifier: any Notifier
+        if Store.isOverridden {
+            fakeNotifier = FakeNotifier()
+            notifier = fakeNotifier!
+        } else {
+            fakeNotifier = nil
+            let system = SystemNotifier()
+            system.onQuit = { [quitFlow] app in quitFlow.quit(app) }
+            notifier = system
+        }
+        alerts = PressureAlerts(notifier: notifier) { [monitor] in await monitor.appSizes().first }
+        monitor.onStats = { [weak autoClear, weak alerts] stats in
+            autoClear?.reading(stats.level)
+            alerts?.reading(stats.level)
+        }
         monitor.start()
     }
 }

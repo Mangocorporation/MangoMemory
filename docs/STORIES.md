@@ -269,7 +269,13 @@ Acceptance:
 - [snap] Settings > Notifications: "Notify when pressure is critical" (on), "Also when High" (off).
 - [unit] No more than one alert per level change, and none again for 30 minutes.
 - [manual] The notification reads "Memory is critical — Safari uses 6.1 GB" and has a Quit Safari action.
-Status: todo
+UX:
+- Flow: pressure turns Critical -> one notification "Memory pressure is Critical", "Safari uses the most memory: 6.1 GB." -> "Quit Safari" button quits it like the Top Apps Quit -> none again for 30 minutes unless pressure climbs higher
+- Surface: system notification (information people may act on); settings in Settings › Notifications
+- States: permission asked the first time it posts; denied: nothing posts; no app found: "Open MangoCleaner to see what uses memory."
+- Words: "Notify when pressure is Critical" (on), "Notify when pressure is High" (off), "Quit <app>"
+- Access: notifications are read by VoiceOver; the button is in the notification's actions
+Status: done
 
 ## M4 Speed
 

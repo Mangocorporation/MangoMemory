@@ -33,6 +33,7 @@ use these words only.
 | Clear File Cache | Run `purge` through the helper to empty the file cache | clean, free up, optimize, boost |
 | Allow Helper… | Register the helper; macOS then asks for approval in Login Items | install, enable, authorize |
 | Automation | The Settings tab for Clear automatically | Advanced, auto |
+| Notifications | The Settings tab for alerts when pressure rises | alerts, warnings |
 | Clear automatically | Clear File Cache on its own when pressure stays high or a big app quits | auto clean, smart clean |
 | Settings… | Open the Settings window (⌘,) | Preferences, options |
 | About MangoCleaner | Open the About window | info |

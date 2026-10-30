@@ -37,6 +37,7 @@ enum SelfTest {
             await quitFlow()
             await cleanFlow()
             await autoClear()
+            await alerts(model)
             refreshInterval(model)
 
             print(failures == 0 ? "SELFTEST PASS \(count) checks" : "SELFTEST FAIL \(failures) of \(count) checks")
@@ -173,6 +174,21 @@ enum SelfTest {
         check("a big app quitting clears", quitClearer.clears == 1 && afterQuit.lastResult?.trigger == .afterQuit)
         afterQuit.afterBigQuit = false
         auto.whenPressureHigh = false
+    }
+
+    /// S-017: one notification when pressure turns critical, naming the top app. Fake notifier only.
+    private static func alerts(_ model: AppModel) async {
+        check("test runs never post real notifications", model.fakeNotifier != nil)
+        let notifier = FakeNotifier()
+        let alerts = PressureAlerts(notifier: notifier) { SampleData.apps.first }
+        let start = Date.now
+        for (second, level) in [(0.0, PressureLevel.normal), (2, .critical), (4, .critical), (6, .high), (8, .critical)] {
+            await alerts.reading(level, at: start + second)?.value
+        }
+        check("one notification per level change, then quiet", notifier.posted.count == 1, "\(notifier.posted.count) posted")
+        check("the notification names the top app",
+              notifier.posted.first?.body == "Safari uses the most memory: 6.1 GB." && notifier.posted.first?.quit?.name == "Safari")
+        check("notify when Critical is on by default", alerts.whenCritical && !alerts.whenHigh)
     }
 
     /// S-009: the refresh interval is saved.

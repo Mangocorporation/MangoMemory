@@ -64,3 +64,19 @@ private struct AutomationStatus: View {
         .onAppear { flow.refreshStatus() }
     }
 }
+
+/// Settings > Notifications (S-017).
+struct NotificationSettings: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        @Bindable var alerts = model.alerts
+        Section {
+            Toggle("Notify when pressure is Critical", isOn: $alerts.whenCritical)
+            Toggle("Notify when pressure is High", isOn: $alerts.whenHigh)
+        } footer: {
+            Text("One notification when pressure rises, then none for 30 minutes. It names the app using the most memory.")
+                .foregroundStyle(.secondary)
+        }
+    }
+}

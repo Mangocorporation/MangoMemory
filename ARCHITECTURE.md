@@ -22,6 +22,8 @@ Views (MenuBarLabel, MemoryWindow, MemoryBreakdown, TopAppsList, CleanSection, S
     -> MemoryMonitor -> MemorySource  [SystemMemorySource | SampleMemorySource]
     -> QuitFlow      -> AppQuitter    [SystemQuitter | FakeQuitter]
     -> CleanFlow     -> CacheClearer  [HelperCacheClearer (XPC) | FakeCacheClearer]
+    -> AutoClear     (AutoClearRules, Kit)  -> CleanFlow
+    -> PressureAlerts (PressureAlertRules, Kit) -> Notifier [SystemNotifier | FakeNotifier]
 SystemMemory: host_statistics64, sysctl, proc_pid_rusage, responsible pid (nonisolated)
 ```
 
@@ -34,7 +36,14 @@ SystemMemory: host_statistics64, sysctl, proc_pid_rusage, responsible pid (nonis
 - `CacheClearer`: the helper over XPC, or a fake. Test runs never run purge
   and never register the helper.
 
+- `Notifier`: UserNotifications, or a fake that records. Test runs never post.
+
 ## Rules
+
+- `MemoryMonitor.onStats` feeds every reading to `AutoClear` and `PressureAlerts`.
+  Their rules are value types in the Kit with the clock passed in, so unit tests never wait.
+- One 3-minute cooldown covers every clear. Automatic clears start it when they
+  begin; clears from the button or the menu start it when they finish.
 
 - `MemoryMonitor.refresh()` reads off the main thread and assigns only changed values.
 - The menu bar label reads `stats`; window views read `windowStats` and
