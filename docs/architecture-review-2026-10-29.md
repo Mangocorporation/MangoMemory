@@ -93,3 +93,11 @@ M5 added `PressureHistory` (Kit ring buffer, unit tested), `PressureChart`
 `MemorySource`, with a sample adapter. `CleanFlow` now takes several
 `whenCleared` listeners. The window-only rule covers the new readings
 (`windowHistory`, `selfUsageLine`). Idle: 20 MB, 0.0 % CPU. Nothing reached Strong.
+
+## Follow-up after M6 (2026-10-30), backlog done
+
+M6 added `MenuBarText` (Kit), the pinned `Window` scene with `PinnedWindow`,
+Open at login through `SMAppService.mainApp`, and a one-image menu bar label.
+`SelfTest.swift` is now the largest file; it is agent-only, so it stays as is
+until it nears 600 lines. The two Speculative cards (QuitRules, Dependencies)
+stand. Nothing reached Strong.
