@@ -89,3 +89,12 @@ Cause, two parts:
 2. The automation and alert settings were read through `rules`, which every pressure reading updates. Settings sync observes those settings, so it woke up every 2 seconds, re-read every setting, and asked SMAppService for the Open at login status each time.
 Fix: one open flag per window (drop-down, pinned), never a count. `rules` is `@ObservationIgnored`; each setting is observed on its own key path. The self-test checks both. Idle is 0.47 % CPU, 14 MB.
 Rule: track open/closed with a flag per window, never a counter; never expose a setting through state that changes on every reading.
+
+## 2026-10-30 Downloaded zip rejected by Gatekeeper after some unzips
+Symptom: "Not Opened" after unzipping the release zip with tools other than ditto; spctl:
+"unsealed contents present in the root directory of an embedded framework".
+Cause: `ditto -c -k` stored extended attributes as `._` files beside Sparkle.framework's symlinks
+(xattr -cr skips symlinks). Found first in MangoStats 1.0; 0.1.3 had 166 such entries.
+Fix: `xattr -crs` in build.sh, `ditto --norsrc --noextattr` in release.sh, and release.sh now
+extracts the zip with plain `unzip` and requires Gatekeeper to accept it.
+Rule: Test a release the way people open it (plain unzip, quarantined), not only with the tools that built it.
