@@ -85,3 +85,11 @@ shared by snapshots, the self-test, and the shortcut. Key handling moved from
 the Top Apps list to the window root, with `moveFocus` and `quitFocused` on
 `AppModel`. The test-run fakes are now one `AppModel.fakes` tuple, a first
 step toward the Speculative `Dependencies` card. Nothing reached Strong.
+
+## Follow-up after M5 (2026-10-30)
+
+M5 added `PressureHistory` (Kit ring buffer, unit tested), `PressureChart`
+(Swift Charts, 60 bars), the help popover, and `selfUsage()` on
+`MemorySource`, with a sample adapter. `CleanFlow` now takes several
+`whenCleared` listeners. The window-only rule covers the new readings
+(`windowHistory`, `selfUsageLine`). Idle: 20 MB, 0.0 % CPU. Nothing reached Strong.
