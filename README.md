@@ -12,6 +12,8 @@
 <p align="center">
   <a href="https://github.com/Mangocorporation/MangoMemory/releases/latest"><b>⬇︎ Download the latest release</b></a>
   &nbsp;·&nbsp;
+  <a href="https://mangocorporation.github.io/MangoMemory/">Website</a>
+  &nbsp;·&nbsp;
   <a href="https://github.com/Mangocorporation/MangoMemory/releases/latest"><img src="https://img.shields.io/github/v/release/Mangocorporation/MangoMemory?label=version" alt="Latest version" align="center"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/Mangocorporation/MangoMemory" alt="MIT license" align="center"></a>
 </p>

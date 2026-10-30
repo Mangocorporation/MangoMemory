@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MangoMemory · An honest menu bar memory app for macOS</title>
+  <meta name="description" content="See memory pressure at a glance, find the app using your RAM, quit it, or clear the file cache in one click. Free and open source for macOS 26 on Apple silicon.">
+  <meta name="color-scheme" content="light dark">
+  <meta property="og:title" content="MangoMemory">
+  <meta property="og:description" content="An honest menu bar memory app for macOS: pressure, top apps, and a real file-cache clear.">
+  <meta property="og:image" content="https://mangocorporation.github.io/MangoMemory/images/icon.png">
+  <meta property="og:url" content="https://mangocorporation.github.io/MangoMemory/">
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="apple-touch-icon" href="images/icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <nav class="wrap nav">
+      <a class="brand" href="#"><img src="images/favicon.png" alt="" width="28" height="28">MangoMemory</a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#helper">Privacy</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://github.com/Mangocorporation/MangoMemory">GitHub</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero wrap">
+      <div class="hero-text">
+        <img class="hero-icon" src="images/icon.png" alt="MangoMemory icon: a mango with memory contacts" width="128" height="128">
+        <h1>Know what your Mac's memory is really doing.</h1>
+        <p class="lede">MangoMemory lives in your menu bar. It shows <strong>memory pressure</strong>, the number macOS actually cares about, finds the app using your RAM, and clears the file cache with Apple's own <code>purge</code>. No tricks, no upsell.</p>
+        <div class="cta">
+          <a class="button" href="https://github.com/Mangocorporation/MangoMemory/releases/latest">Download for Mac</a>
+          <a class="button secondary" href="https://github.com/Mangocorporation/MangoMemory">View source</a>
+        </div>
+        <p class="meta">Free and open source (MIT) · macOS 26 or later · Apple silicon · Notarized by Apple</p>
+      </div>
+      <div class="hero-shot">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="images/window-dark.png">
+          <img src="images/window-light.png" width="320" height="610" alt="The MangoMemory window: Normal pressure, a memory breakdown, an hour of pressure history, the top five apps, and the Clear File Cache button">
+        </picture>
+      </div>
+    </section>
+
+    <section class="why">
+      <div class="wrap">
+        <h2>Most memory cleaners show the wrong number.</h2>
+        <p class="section-lede">They count <em>free</em> memory, which is low on every healthy Mac: macOS puts spare RAM to work as file cache on purpose. MangoMemory shows what matters instead.</p>
+        <div class="cards three">
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">◐</div>
+            <h3>Pressure first</h3>
+            <p>Normal, High, or Critical: how hard macOS is working to find memory, the same signal Activity Monitor uses. The menu bar glyph changes shape and color, so you notice without reading.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">▤</div>
+            <h3>What is using it</h3>
+            <p>The five apps using the most memory, with their helper processes counted in (Safari's web pages count toward Safari). Hover a row to Quit; if an app refuses, Force Quit asks first.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">✓</div>
+            <h3>A real clear, honestly reported</h3>
+            <p>Clear File Cache runs <code>/usr/sbin/purge</code> and tells you what it emptied: “Cleared 1.8 GB · pressure 53 % → 52 %”. When there is little to clear, it says so.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="menubar wrap">
+      <h2>One glance at the menu bar</h2>
+      <p class="section-lede">Plain at Normal, yellow at High, filled red at Critical. Next to it: available memory, pressure %, or nothing at all.</p>
+      <div class="levels">
+        <figure><img src="images/status-normal.png" alt="Menu bar item at Normal pressure" height="36"><figcaption>Normal</figcaption></figure>
+        <figure><img src="images/status-high.png" alt="Menu bar item at High pressure" height="36"><figcaption>High</figcaption></figure>
+        <figure><img src="images/status-critical.png" alt="Menu bar item at Critical pressure" height="36"><figcaption>Critical</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="features" class="features">
+      <div class="wrap split">
+        <div>
+          <h2>Everything in one small window</h2>
+          <ul class="list">
+            <li><strong>Breakdown</strong> of App memory, Wired, Compressed, File cache, Free, and Swap, matching Activity Monitor.</li>
+            <li><strong>The last hour</strong> of pressure, one bar per minute, with every clear marked.</li>
+            <li><strong>Plain-language help</strong>: the ⓘ button explains each number, including why low Free is fine.</li>
+            <li><strong>Keep Window Open</strong> to float it above your work on every Space.</li>
+            <li><strong>Keyboard only</strong>: ⌃⌥M from anywhere, ↑ ↓ to pick an app, Return to quit it, ⌘K to clear, Escape to close.</li>
+            <li><strong>Light on your Mac</strong>: about 0.5 % CPU and under 30 MB, and it shows its own use in the footer.</li>
+          </ul>
+        </div>
+        <picture class="shot">
+          <source media="(prefers-color-scheme: dark)" srcset="images/window-clean-result-dark.png">
+          <img src="images/window-clean-result-light.png" width="320" alt="The memory window after Clear File Cache, reporting: Cleared 2.1 GB, pressure 34 % to 33 %">
+        </picture>
+      </div>
+
+      <div class="wrap split reverse">
+        <div>
+          <h2>Works on its own when you want it to</h2>
+          <ul class="list">
+            <li><strong>Clear automatically when pressure stays high</strong> for 30 seconds, 1 minute, or 5 minutes.</li>
+            <li><strong>Clear automatically after a big app quits</strong>: over 1, 2, or 4 GB.</li>
+            <li><strong>One quiet notification</strong> when pressure turns Critical, naming the top app, with a Quit button. Then nothing for 30 minutes.</li>
+            <li><strong>One 3-minute cooldown</strong> for every clear, so it never clears over and over.</li>
+            <li><strong>Sync settings with iCloud</strong> across all your Macs.</li>
+          </ul>
+        </div>
+        <picture class="shot">
+          <source media="(prefers-color-scheme: dark)" srcset="images/settings-automation-dark.png">
+          <img src="images/settings-automation-light.png" width="520" alt="Settings, Automation tab">
+        </picture>
+      </div>
+    </section>
+
+    <section id="helper" class="trust">
+      <div class="wrap">
+        <h2>A helper that does one thing</h2>
+        <p class="section-lede"><code>purge</code> only runs as root, so MangoMemory installs a tiny helper through Apple's <code>SMAppService</code>, which you approve once in System Settings.</p>
+        <div class="cards three">
+          <article class="card">
+            <h3>One command</h3>
+            <p>The helper runs <code>/usr/sbin/purge</code> and nothing else. It takes no arguments from anyone.</p>
+          </article>
+          <article class="card">
+            <h3>One caller</h3>
+            <p>It answers only MangoMemory signed by our team, enforced by a code-signing check on every connection.</p>
+          </article>
+          <article class="card">
+            <h3>Your switch</h3>
+            <p>Turn it off any time in System Settings › General › Login Items &amp; Extensions.</p>
+          </article>
+        </div>
+        <p class="privacy"><strong>No analytics, no accounts, no servers.</strong> MangoMemory reads memory statistics on your Mac only. Settings sync, if you leave it on, writes one small file to <em>your</em> iCloud Drive. The code is open: read every line on GitHub.</p>
+      </div>
+    </section>
+
+    <section class="install wrap">
+      <h2>Install in a minute</h2>
+      <ol class="steps">
+        <li><span>1</span><div><strong>Download</strong> the zip from the <a href="https://github.com/Mangocorporation/MangoMemory/releases/latest">latest release</a>, unzip it, and move MangoMemory to Applications.</div></li>
+        <li><span>2</span><div><strong>Open it.</strong> It appears in the menu bar; there's no Dock icon.</div></li>
+        <li><span>3</span><div><strong>Click Allow Helper…</strong> in the window and turn MangoMemory on in Login Items &amp; Extensions to clear the file cache.</div></li>
+      </ol>
+      <div class="cta center">
+        <a class="button" href="https://github.com/Mangocorporation/MangoMemory/releases/latest">Download MangoMemory</a>
+      </div>
+    </section>
+
+    <section id="faq" class="faq">
+      <div class="wrap narrow">
+        <h2>Questions</h2>
+        <details>
+          <summary>Free memory is almost zero. Is that bad?</summary>
+          <p>No. macOS fills spare memory with file cache so files open faster, and hands it back the moment an app needs it. Watch pressure, not Free.</p>
+        </details>
+        <details>
+          <summary>Does clearing the file cache make my Mac faster?</summary>
+          <p>Usually not by much, and MangoMemory says so. The emptied cache becomes free memory, but macOS already counted file cache as available, so pressure typically moves a point or two. It helps most right before something memory-hungry. The cache refills as you use files.</p>
+        </details>
+        <details>
+          <summary>Why isn't it on the Mac App Store?</summary>
+          <p>App Store apps must run in the sandbox, which forbids the root helper that runs <code>purge</code> and limits looking at other apps' memory. We'd rather ship the real thing, signed with Developer ID and notarized by Apple.</p>
+        </details>
+        <details>
+          <summary>Which Macs does it run on?</summary>
+          <p>Macs with Apple silicon running macOS 26 Tahoe or later.</p>
+        </details>
+        <details>
+          <summary>How do I remove it completely?</summary>
+          <p>Turn the helper off in System Settings › General › Login Items &amp; Extensions, quit MangoMemory from its gear menu, and move it to the Trash.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot-inner">
+      <span><img src="images/favicon.png" alt="" width="20" height="20"> MangoMemory · © 2026 MangoCorp · <a href="https://github.com/Mangocorporation/MangoMemory/blob/main/LICENSE">MIT License</a></span>
+      <span><a href="https://github.com/Mangocorporation/MangoMemory">Source</a> · <a href="https://github.com/Mangocorporation/MangoMemory/releases">Releases</a> · <a href="https://github.com/Mangocorporation/MangoMemory/issues">Report a problem</a></span>
+    </div>
+  </footer>
+</body>
+</html>
