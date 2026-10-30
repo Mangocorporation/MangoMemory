@@ -6,25 +6,27 @@ import MangoMemoryKit
 /// settings, feeds the rules, and starts the clears.
 @Observable
 final class AutoClear {
-    private(set) var rules = AutoClearRules()
+    /// Changes on every pressure reading, so it is not observed: each setting
+    /// below is observed on its own, and views never redraw for a reading.
+    @ObservationIgnored private(set) var rules = AutoClearRules()
     /// The last automatic clear, for Settings > Automation.
     private(set) var lastResult: CleanResult?
 
     var whenPressureHigh: Bool {
-        get { rules.whenPressureHigh }
-        set { rules.whenPressureHigh = newValue; save() }
+        get { access(keyPath: \.whenPressureHigh); return rules.whenPressureHigh }
+        set { withMutation(keyPath: \.whenPressureHigh) { rules.whenPressureHigh = newValue }; save() }
     }
     var highFor: TimeInterval {
-        get { rules.highFor }
-        set { rules.highFor = newValue; save() }
+        get { access(keyPath: \.highFor); return rules.highFor }
+        set { withMutation(keyPath: \.highFor) { rules.highFor = newValue }; save() }
     }
     var afterBigQuit: Bool {
-        get { rules.afterBigQuit }
-        set { rules.afterBigQuit = newValue; save(); watchApps() }
+        get { access(keyPath: \.afterBigQuit); return rules.afterBigQuit }
+        set { withMutation(keyPath: \.afterBigQuit) { rules.afterBigQuit = newValue }; save(); watchApps() }
     }
     var bigApp: UInt64 {
-        get { rules.bigApp }
-        set { rules.bigApp = newValue; save() }
+        get { access(keyPath: \.bigApp); return rules.bigApp }
+        set { withMutation(keyPath: \.bigApp) { rules.bigApp = newValue }; save() }
     }
 
     private let cleanFlow: CleanFlow

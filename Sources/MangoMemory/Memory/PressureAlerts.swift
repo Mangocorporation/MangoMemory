@@ -67,15 +67,22 @@ final class FakeNotifier: Notifier {
 /// A quiet notification when pressure turns Critical, or High if chosen (S-017).
 @Observable
 final class PressureAlerts {
-    private(set) var rules = PressureAlertRules()
+    /// Changes on every reading, so it is not observed; the two settings are.
+    @ObservationIgnored private(set) var rules = PressureAlertRules()
 
     var whenCritical: Bool {
-        get { rules.whenCritical }
-        set { rules.whenCritical = newValue; Store.defaults.set(newValue, forKey: "notify.critical") }
+        get { access(keyPath: \.whenCritical); return rules.whenCritical }
+        set {
+            withMutation(keyPath: \.whenCritical) { rules.whenCritical = newValue }
+            Store.defaults.set(newValue, forKey: "notify.critical")
+        }
     }
     var whenHigh: Bool {
-        get { rules.whenHigh }
-        set { rules.whenHigh = newValue; Store.defaults.set(newValue, forKey: "notify.high") }
+        get { access(keyPath: \.whenHigh); return rules.whenHigh }
+        set {
+            withMutation(keyPath: \.whenHigh) { rules.whenHigh = newValue }
+            Store.defaults.set(newValue, forKey: "notify.high")
+        }
     }
 
     private let notifier: any Notifier

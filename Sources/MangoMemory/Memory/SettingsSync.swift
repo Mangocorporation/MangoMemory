@@ -19,6 +19,8 @@ final class SettingsSync {
     private(set) var lastSync: (date: Date, device: String)?
     /// Set when the file could not be saved, for the Settings footer.
     private(set) var failed = false
+    /// How often a setting looked changed. The self-test checks readings leave it alone.
+    @ObservationIgnored private(set) var wakeups = 0
 
     /// False when iCloud Drive is off.
     var available: Bool { FileManager.default.fileExists(atPath: folder.deletingLastPathComponent().path) }
@@ -99,6 +101,7 @@ final class SettingsSync {
     }
 
     private func localChanged() {
+        wakeups += 1
         let values = read()
         guard enabled, values != lastKnown else { return }
         localModified = .now

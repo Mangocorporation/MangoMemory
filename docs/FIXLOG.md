@@ -80,3 +80,12 @@ Symptom: the first real clear through the helper said "Nothing much to clear"; t
 Cause: the result measured the change in *available* memory (free + file cache). purge turns file cache into free memory, so available hardly moves; what showed was background drift. The unit tests and sample data modeled a clear as free memory appearing from nowhere, so they agreed with the wrong measure.
 Fix: measure the file cache that was emptied: "Cleared 2.1 GB · pressure 53 % → 52 %". Tests and sample data now model what purge does (cache down, free up by the same amount).
 Rule: measure an action by the quantity it actually changes, and model fakes on the real system's behavior, not on the result you hope to show.
+
+## The idle app used 3–5 % CPU with the window closed (2026-10-30)
+
+Symptom: with the window closed, MangoMemory used 2.8–4.7 % CPU (0.0–0.3 % at the end of M1). A sample showed `processes()`, `AppRow.body`, and SwiftUI layout running, plus `SettingsSync.observe` firing every reading.
+Cause, two parts:
+1. M6 counted open memory windows (drop-down plus pinned). A window can report "appeared" more often than "disappeared", so the count stayed above zero after closing: the hidden window kept reading every process and redrawing every 2 seconds, the same failure as the first entry in this log.
+2. The automation and alert settings were read through `rules`, which every pressure reading updates. Settings sync observes those settings, so it woke up every 2 seconds, re-read every setting, and asked SMAppService for the Open at login status each time.
+Fix: one open flag per window (drop-down, pinned), never a count. `rules` is `@ObservationIgnored`; each setting is observed on its own key path. The self-test checks both. Idle is 0.47 % CPU, 14 MB.
+Rule: track open/closed with a flag per window, never a counter; never expose a setting through state that changes on every reading.

@@ -43,6 +43,7 @@ enum SelfTest {
             await insight(model)
             await polish(model)
             await iCloudSync(model)
+            await idleStaysIdle(model)
             refreshInterval(model)
 
             print(failures == 0 ? "SELFTEST PASS \(count) checks" : "SELFTEST FAIL \(failures) of \(count) checks")
@@ -88,6 +89,11 @@ enum SelfTest {
             .map { AppUsage(pid: $0.processIdentifier, name: $0.localizedName ?? "App", bundlePath: nil, bytes: 0) }
         let me = ProcessInfo.processInfo.processIdentifier
         let top = SystemMemorySource().topApps(5, apps: apps, excluding: me)
+        // What one Top Apps reading costs, and one totals reading, on this Mac.
+        let clock = ContinuousClock()
+        let topCost = clock.measure { for _ in 1...10 { _ = SystemMemorySource().topApps(5, apps: apps, excluding: me) } } / 10
+        let statsCost = clock.measure { for _ in 1...10 { _ = SystemMemory.stats() } } / 10
+        print("INFO one Top Apps reading takes \(topCost), one totals reading \(statsCost), \(SystemMemory.processes().count) processes")
         check("Top Apps lists running apps", !top.isEmpty)
         check("Top Apps is sorted largest first", top.map(\.bytes) == top.map(\.bytes).sorted(by: >))
         check("MangoMemory is never in Top Apps", !top.contains { $0.pid == me })
@@ -342,6 +348,28 @@ enum SelfTest {
         model.largeMenuBarText = false
         model.alerts.whenHigh = false
         try? await Task.sleep(for: .seconds(1.5))
+    }
+
+    /// A closed window and steady readings cost nothing (docs/FIXLOG.md).
+    private static func idleStaysIdle(_ model: AppModel) async {
+        let monitor = MemoryMonitor(source: SampleMemorySource())
+        monitor.window(pinned: false, isOpen: true)
+        monitor.window(pinned: false, isOpen: true)
+        monitor.window(pinned: false, isOpen: false)
+        check("a window that appeared twice and closed once counts as closed", !monitor.windowIsOpen)
+        monitor.window(pinned: true, isOpen: true)
+        monitor.window(pinned: false, isOpen: false)
+        check("the pinned window keeps the data live", monitor.windowIsOpen)
+
+        try? await Task.sleep(for: .milliseconds(300))
+        let wakeups = model.settingsSync.wakeups
+        for second in stride(from: 0.0, to: 20, by: 2) {
+            model.autoClear.reading(.high, at: .now + second)
+            model.alerts.reading(second < 10 ? .normal : .high, at: .now + second)
+        }
+        try? await Task.sleep(for: .milliseconds(300))
+        check("pressure readings never wake settings sync", model.settingsSync.wakeups == wakeups,
+              "\(model.settingsSync.wakeups - wakeups) wakeups")
     }
 
     /// S-009: the refresh interval is saved.

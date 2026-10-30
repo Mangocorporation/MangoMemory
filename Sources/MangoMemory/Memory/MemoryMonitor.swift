@@ -54,17 +54,16 @@ final class MemoryMonitor {
     /// Called with every reading, open window or not (automatic clearing).
     var onStats: ((MemoryStats) -> Void)?
 
-    /// The drop-down and the pinned window can both be open for a moment.
-    private var openWindows = 0
+    /// The drop-down and the pinned window can both be open for a moment. One flag
+    /// each, not a count: a window can report "appeared" twice, and a count then
+    /// stays above zero after it closes, so the hidden window redraws (docs/FIXLOG.md).
+    private var dropDownOpen = false
+    private var pinnedOpen = false
 
-    func windowAppeared() {
-        openWindows += 1
-        windowIsOpen = true
-    }
-
-    func windowDisappeared() {
-        openWindows = max(0, openWindows - 1)
-        windowIsOpen = openWindows > 0
+    func window(pinned: Bool, isOpen: Bool) {
+        if pinned { pinnedOpen = isOpen } else { dropDownOpen = isOpen }
+        let open = dropDownOpen || pinnedOpen
+        if open != windowIsOpen { windowIsOpen = open }
     }
 
     private let source: any MemorySource

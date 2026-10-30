@@ -61,10 +61,10 @@ struct MemoryWindow: View {
         }
         .onAppear {
             takesKeys = true
-            model.monitor.windowAppeared()
+            model.monitor.window(pinned: pinned, isOpen: true)
             model.cleanFlow.refreshStatus()
         }
-        .onDisappear { model.monitor.windowDisappeared() }
+        .onDisappear { model.monitor.window(pinned: pinned, isOpen: false) }
     }
 }
 
