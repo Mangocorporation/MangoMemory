@@ -6,6 +6,8 @@
 # Usage: ./build.sh            release build, install
 #        ./build.sh --debug    debug build, install
 #        ./build.sh --open     install, then quit the running copy and open the new one
+#        APP_DIR=<dir> SIGN_IDENTITY="Developer ID Application: …" ./build.sh
+#                              build into <dir> with Developer ID (tools/release.sh does this)
 set -euo pipefail
 here=${0:A:h}
 name="MangoMemory"
@@ -32,8 +34,8 @@ if [[ -n "$stale" ]]; then
   exit 1
 fi
 
-app="$HOME/Applications/$name.app"
-mkdir -p "$HOME/Applications"
+app="${APP_DIR:-$HOME/Applications}/$name.app"
+mkdir -p "${app:h}"
 rm -rf "$app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 cp "$bin" "$app/Contents/MacOS/$name"
@@ -51,10 +53,13 @@ if [[ -d "$here/Icon/AppIcon.icon" ]]; then
   cp -X "$car" "$here/Resources/AppIcon.icns" "$app/Contents/Resources/"
 fi
 xattr -cr "$app"
-# Sign the helper first, with the hardened runtime launchd daemons need, then the app.
-codesign --force --options runtime --identifier com.mangocorp.mangomemory.helper --sign "$identity" \
+# Sign the helper first, then the app, both with the hardened runtime (launchd
+# daemons and notarization need it). Developer ID adds a secure timestamp.
+flags=(--force --options runtime)
+[[ "$identity" == "Developer ID"* ]] && flags+=(--timestamp)
+codesign $flags --identifier com.mangocorp.mangomemory.helper --sign "$identity" \
   "$app/Contents/MacOS/${name}Helper" 2>&1 | grep -v "replacing existing signature" || true
-codesign --force --sign "$identity" "$app" 2>&1 | grep -v "replacing existing signature" || true
+codesign $flags --sign "$identity" "$app" 2>&1 | grep -v "replacing existing signature" || true
 echo "installed $app (signed: ${identity})"
 
 if [[ " $* " == *" --open "* ]]; then

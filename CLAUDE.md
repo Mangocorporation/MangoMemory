@@ -17,6 +17,7 @@ the file cache. No database and no server: settings live in UserDefaults
 
 ## Build and check
 
+- Release for other Macs: `tools/release.sh` (Developer ID, notarized; `--check` first). Steps in `docs/RELEASE.md`.
 - Build and install: `./build.sh`. Add `--open` to restart the app with the new build. The build shows warnings; fix them.
 - Unit tests: `swift test --scratch-path ~/Library/Developer/MangoMemory/test-build`.
 - Self-test (the app's real functions on test settings): `tools/selftest.sh`. Exit 0 when every check passes. Add a check for every story with logic in `SelfTest.swift`.
