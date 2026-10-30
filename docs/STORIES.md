@@ -452,7 +452,7 @@ As the user, I choose Check for Updates… and MangoMemory installs the new vers
 Screens: snapshot `settings-general`
 Acceptance:
 - [self] The feed is the website's appcast; the app carries the update key; test runs never check.
-- [manual] An older build pointed at a signed local feed downloads the update, installs it on quit, and relaunches as the new version with the helper still running (done 2026-10-30).
+- [manual] An older build pointed at a signed local feed downloads the update, installs it on quit, and relaunches as the new version with the helper still running (done 2026-10-30). The user confirmed Clear File Cache works after updating to 0.1.3.
 UX:
 - Flow: gear › Check for Updates… -> Sparkle shows the notes -> Install Update -> relaunch; or a daily check -> alert behind other windows plus a dot on the gear -> gear › Install MangoMemory X…
 - Surface: gear menu item; Settings › General: Version with Check Now, and a toggle
