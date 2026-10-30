@@ -59,3 +59,9 @@ Nothing applied in this check-in.
 - Moving `SampleData` and `FakeQuitter` out of the app target: they are the
   test adapters the template expects there, and test runs need them in the app.
 - Splitting `Snapshot.swift`: under 200 lines and only used by agents.
+
+## Follow-up after M2
+
+The top recommendation is done: `CacheClearer` with `HelperCacheClearer` (XPC)
+and `FakeCacheClearer`, used by the window, the gear menu, and the self-test.
+The two Speculative cards stand; nothing new reached Strong.
