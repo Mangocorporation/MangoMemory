@@ -54,7 +54,22 @@ enum SettingsTab: String, CaseIterable, Identifiable {
 }
 
 struct GeneralSettings: View {
+    @Environment(AppModel.self) private var model
+
     var body: some View {
+        @Bindable var monitor = model.monitor
+        Section {
+            Picker("Refresh interval", selection: $monitor.refreshInterval) {
+                ForEach(MemoryMonitor.refreshChoices, id: \.self) { seconds in
+                    Text(seconds == 1 ? "1 second" : "\(seconds) seconds").tag(seconds)
+                }
+            }
+        } footer: {
+            if monitor.refreshInterval < 2 {
+                Text("Faster refresh uses more energy.")
+                    .foregroundStyle(.secondary)
+            }
+        }
         Section {
             LabeledContent("Version", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—")
         }

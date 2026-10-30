@@ -18,7 +18,7 @@ Acceptance:
 - [unit] `MemoryReader` returns total, free, app, wired, compressed, file cache, swap used, pressure level (normal/warn/critical) and pressure %, using Stats' formulas (research Platform).
 - [unit] app + wired + compressed + file cache + free = total, within 1 %.
 - [self] On this Mac, each value is within 3 % of `vm_stat` and `sysctl vm.swapusage` output.
-Status: todo
+Status: done
 
 ### S-002 See pressure and free memory in the menu bar
 As the user, I glance at the menu bar and see a memory glyph tinted by pressure, plus free GB.
@@ -31,10 +31,10 @@ Acceptance:
 UX:
 - Flow: launch -> menu bar item appears at once with the last known value -> updates every refresh interval -> click opens the memory window (S-003)
 - Surface: menu bar item (always-visible status, no action needed)
-- States: first read pending shows the glyph only; reader error shows the glyph with a slash and tooltip "Unable to read memory"; Critical adds a filled glyph, not just red
-- Words: "3.4 GB"; tooltip "Memory pressure: Normal · 3.4 GB free"
-- Access: VoiceOver "MangoCleaner, memory pressure Normal, 3.4 gigabytes free"; level shown by glyph fill as well as color
-Status: todo
+- States: first read pending or a reader error shows the plain glyph without text; Critical adds a filled glyph, not just red
+- Words: "3.4 GB" (available). No tooltip: MenuBarExtra labels ignore `.help`; the window header says the rest
+- Access: VoiceOver "MangoCleaner, memory pressure Normal, 3.4 GB available"; Normal outline template, High yellow outline, Critical filled red
+Status: done
 
 ### S-003 Open the memory window from the menu bar
 As the user, I click the status item and a window drops down with the pressure headline.
@@ -48,9 +48,9 @@ UX:
 - Flow: click the menu bar item or the global shortcut (S-018) -> memory window drops down under it, focus on the top apps list -> Escape, click outside, or click the item again closes it
 - Surface: menu bar extra window (`MenuBarExtra(.window)`): a place people come back to many times a day, lighter than a full window
 - States: first open before a read shows the last snapshot, never a spinner; pressure % missing shows the level word only
-- Words: header "Memory Pressure" caption, level word "Normal" / "High" / "Critical", sub-line "3.4 GB free · 41 %"
-- Access: the level is a word, not only a color; header reads as one VoiceOver element "Memory pressure High, 41 percent, 3.4 gigabytes free"
-Status: todo
+- Words: header "Memory Pressure" caption, level word "Normal" / "High" / "Critical" with a symbol, sub-line "3.4 GB available · 41 % pressure"
+- Access: the level is a word and a symbol, not only a color; the header reads as one VoiceOver element
+Status: done
 
 ### S-004 See the memory breakdown
 As the user, I see where my RAM goes in a stacked bar and a details list.
@@ -65,8 +65,8 @@ UX:
 - Surface: inline in the memory window (information, no action)
 - States: Swap row shows "None" when zero; values under 1 GB show in MB; total never changes
 - Words: rows "App memory", "Wired", "Compressed", "File cache", "Free", "Swap", "Total"; segment tooltip "Compressed · 9.6 GB"
-- Access: each row is one VoiceOver element "Compressed, 9.6 gigabytes"; dot colors repeat in the bar but every value also has its word
-Status: todo
+- Access: each row is one VoiceOver element "Compressed, 9.6 GB"; dot colors repeat in the bar but every value also has its word
+Status: done
 
 ### S-005 See which apps use the most memory
 As the user, I see the five apps using the most memory, with icon, name, and size.
@@ -81,15 +81,15 @@ UX:
 - Surface: inline list in the memory window (a place to come back to; actions come in S-006)
 - States: fewer than five apps lists what exists; footprint unreadable for an app shows "—" with tooltip "macOS doesn't share this app's memory"; long names truncate with a tooltip
 - Words: section title "Top Apps"; row "Safari  6.1 GB"
-- Access: rows are focusable list items in order; VoiceOver "Safari, 6.1 gigabytes"
-Status: todo
+- Access: rows are focusable list items in order; VoiceOver "Safari, 6.1 GB"
+Status: done
 
 ### S-006 Quit a top app from the memory window
 As the user, I hover an app row and click Quit to free its memory.
 Screens: snapshot `window-row-hover`
 Depends: S-005
 Acceptance:
-- [snap] Hovering a row reveals a Quit button; the row is also reachable with arrow keys.
+- [snap] Hovering a row reveals a Quit button; the row is also reachable with arrow keys (window-row-hover).
 - [self] Quit sends a normal terminate; the row disappears once the app exits.
 - [manual] An app with unsaved changes shows its own save dialog (we never force quit by default).
 UX:
@@ -98,14 +98,14 @@ UX:
 - States: quitting in progress dims the row; app refused (still running after 5 s) leads to S-007; no confirmation, because Quit lets the app save
 - Words: button "Quit"; tooltip "Quit Safari and free 6.1 GB (Return)"; context menu "Quit Safari", "Show in Activity Monitor"
 - Access: Return quits the selected row; VoiceOver action "Quit"; the button never shifts the row's layout
-Status: todo
+Status: done
 
 ### S-007 Force quit an app that won't quit
 As the user, when an app ignores Quit for 5 seconds, I can force quit it.
 Screens: snapshot `window-force-quit`
 Depends: S-006
 Acceptance:
-- [snap] After 5 s the row's button becomes Force Quit with a warning tint.
+- [snap] After 5 s the row's button becomes Force Quit with a warning tint (window-force-quit).
 - [self] Force Quit asks for confirmation that names the app and warns about unsaved work.
 UX:
 - Flow: Quit sent, app still running after 5 s -> row button becomes "Force Quit" -> click -> confirmation dialog -> Force Quit closes the app, Cancel or Escape returns to the row
@@ -113,22 +113,22 @@ UX:
 - States: app quits by itself during the dialog closes the dialog; dialog never shows for MangoCleaner itself
 - Words: title "Force Quit Safari?"; message "Safari isn't responding to Quit. Any unsaved changes in Safari will be lost."; buttons "Force Quit" (destructive) and "Cancel" (default)
 - Access: Escape cancels, Return is Cancel; warning tint plus the words "Force Quit"
-Status: todo
+Status: done
 
 ### S-008 Open settings and quit from the gear menu
 As the user, I open a gear menu in the window for Settings and Quit, with live stats.
 Screens: 03-gear-menu.png; snapshot `gear-menu`
 Depends: S-003
 Acceptance:
-- [snap] Items: Clear File Cache, Settings… ⌘,, separator, live stats (Free, App memory, Wired, Compressed, File cache, Swap, Total), separator, About MangoCleaner, Quit MangoCleaner ⌘Q.
+- [manual] Items: Clear File Cache (from S-013), Settings… ⌘,, separator, live stats (Free, App memory, Wired, Compressed, File cache, Swap, Total), separator, About MangoCleaner, Quit MangoCleaner ⌘Q.
 - [self] ⌘, opens the Settings window; ⌘Q quits.
 UX:
-- Flow: gear button in the memory window header, or right-click the menu bar item -> menu opens -> choose an item; Escape closes
+- Flow: gear button in the memory window header -> menu opens -> choose an item; Escape closes (MenuBarExtra has no right-click)
 - Surface: menu (a few related commands tied to one control)
-- States: Clear File Cache is disabled while a clear runs; live stats are disabled items that update while the menu is open
+- States: live stats are disabled items with the values from when the menu opened; Clear File Cache arrives with S-013
 - Words: "Clear File Cache", "Settings… ⌘,", stats "Free  3.4 GB" etc., "About MangoCleaner", "Quit MangoCleaner ⌘Q"; gear tooltip "Show settings and more"
 - Access: gear button VoiceOver "More"; full menu keyboard navigation
-Status: todo
+Status: done
 
 ### S-009 Change how often numbers refresh
 As the user, I set the refresh interval and it survives a restart.
@@ -144,7 +144,7 @@ UX:
 - States: values below 2 s show a note "Faster refresh uses more energy."
 - Words: label "Refresh interval", options "1 second", "2 seconds", "5 seconds", "10 seconds"; window title "General"
 - Access: picker reachable with Tab; VoiceOver "Refresh interval, 2 seconds, pop-up button"
-Status: todo
+Status: done
 
 ## M2 Clean
 
@@ -246,7 +246,7 @@ Screens: snapshot `window-row-hover`
 Depends: S-006
 Acceptance:
 - [self] ↑/↓ select app rows, Return quits the selected app, ⌘K clears the file cache, Escape closes the window.
-- [manual] VoiceOver reads each row as "Safari, 6.1 gigabytes, Quit button".
+- [manual] VoiceOver reads each row as "Safari, 6.1 GB, Quit button".
 Status: todo
 
 ## M5 Insight

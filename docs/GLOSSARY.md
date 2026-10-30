@@ -11,7 +11,8 @@ use these words only.
 | Memory window | The window that drops down from the menu bar item | popover, panel, dashboard |
 | Memory pressure | How hard macOS works to find memory, as a level and a percent | memory load, RAM usage, health |
 | Normal / High / Critical | The three pressure levels (green, yellow, red) | OK, warning, tight, danger, low/high memory |
-| Free | Memory nothing uses right now | available, unused |
+| Available | Free plus file cache: what apps can get without compressing or swapping. The menu bar item shows it | free (in the menu bar), usable |
+| Free | Memory nothing uses right now | unused |
 | App memory | Memory apps and their processes use | app RAM, active |
 | Wired | Memory macOS keeps for itself and can't compress | system, kernel |
 | Compressed | Memory macOS squeezed to make room | zipped |

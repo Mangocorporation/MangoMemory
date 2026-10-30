@@ -44,8 +44,10 @@ Apple's look (see the `mac-design` skill), plus a few tokens in
 
 - `hover`, `quick`, `ui`, `numberRoll`, `listChange`, `bar`. Each turns into a
   fade or nothing under Reduce Motion.
-- Live numbers use `.contentTransition(.numericText())` with `Motion.numberRoll`;
-  "GB" and "%" never animate.
+- Live numbers never use `.contentTransition(.numericText())`: on a refresh every
+  2 s it cost 20 % CPU and leaked memory. They change in place.
+- A closed memory window must not redraw: views read `monitor.windowStats`,
+  which only changes while the window is open. Only the menu bar label reads `stats`.
 - The menu bar item never animates (WindowServer cost, research decision 8).
 - Never animate a view's first layout. Hover never moves a selection.
 

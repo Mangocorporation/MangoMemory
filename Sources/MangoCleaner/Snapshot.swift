@@ -1,5 +1,6 @@
 import AppKit
 import IOKit.pwr_mgt
+import MangoCleanerKit
 import SwiftUI
 
 /// Screenshot mode for agents.
@@ -8,12 +9,34 @@ import SwiftUI
 /// (the memory window drops down from the menu bar item, as when clicked), and
 /// settings-<tab>-light.png and settings-<tab>-dark.png for every Settings tab, then quits.
 /// Each PNG gets a <page>-<mode>-layout.json with the grid probes (tools/check-layout.swift).
-/// APP_SNAPSHOT_PAGES=window limits the pages. Add "settings" to include Settings.
+/// status-<level>.png shows the menu bar item at each pressure level.
+/// APP_SNAPSHOT_PAGES=window,status-high limits the pages. Add "settings" to include Settings.
 /// Add APP_ACCENT=<id> to see the pages in another accent.
 enum Snapshot {
     /// The pages of the memory window. Add a page when a story adds a state
     /// that needs its own picture (docs/STORIES.md names them).
-    static let pages = ["window"]
+    static let pages: [(name: String, setup: (AppModel) -> Void)] = [
+        ("window", { stage($0) }),
+        ("window-high", { stage($0, level: .high) }),
+        ("window-critical", { stage($0, level: .critical) }),
+        ("window-row-hover", { stage($0, focus: SampleData.apps.first?.pid) }),
+        ("window-force-quit", { model in
+            stage(model)
+            model.quitFlow.show(.refused, for: SampleData.apps[0].pid)
+            model.quitFlow.show(.quitting, for: SampleData.apps[1].pid)
+        }),
+    ]
+
+    /// The menu bar item at each pressure level (S-002).
+    static let statusPages: [(name: String, level: PressureLevel)] =
+        [("status-normal", .normal), ("status-high", .high), ("status-critical", .critical)]
+
+    private static func stage(_ model: AppModel, level: PressureLevel = .normal, focus: Int32? = nil) {
+        model.monitor.stop()
+        model.monitor.show(SampleData.stats(level: level), topApps: SampleData.apps)
+        for app in SampleData.apps { model.quitFlow.show(nil, for: app.pid) }
+        model.focusedApp = focus
+    }
 
     /// Clicks MangoCleaner's own menu bar item, like a person would, and
     /// returns the window that drops down.
@@ -58,16 +81,23 @@ enum Snapshot {
             try? await Task.sleep(for: .seconds(1.5))
             for mode in ["light", "dark"] {
                 NSApp.appearance = NSAppearance(named: mode == "light" ? .aqua : .darkAqua)
-                for page in pages where only?.contains(page) ?? true {
+                for page in pages where only?.contains(page.name) ?? true {
+                    page.setup(model)
                     guard let window = await openMenuBarWindow() else {
                         print("SNAPSHOT no menu bar window")
                         continue
                     }
-                    capture(to: "\(dir)/\(page)-\(mode).png", window: window)
+                    capture(to: "\(dir)/\(page.name)-\(mode).png", window: window)
                     // A second click closes it, so the next click opens it again.
                     menuBarButton()?.performClick(nil)
                     try? await Task.sleep(for: .seconds(0.5))
                 }
+            }
+            // The menu bar follows the desktop, not the app's appearance: one picture each.
+            for page in statusPages where only?.contains(page.name) ?? true {
+                stage(model, level: page.level)
+                try? await Task.sleep(for: .seconds(0.5))
+                captureRegion(to: "\(dir)/\(page.name).png", of: menuBarButton()?.window)
             }
             if only == nil || only?.contains("settings") == true {
                 openSettings()
@@ -87,6 +117,20 @@ enum Snapshot {
             for window in NSApp.windows { if let sheet = window.attachedSheet { window.endSheet(sheet) } }
             NSApp.terminate(nil)
         }
+    }
+
+    /// The menu bar item's window cannot be captured by window number:
+    /// capture its rectangle of the screen instead.
+    private static func captureRegion(to path: String, of window: NSWindow?) {
+        guard let window, let screen = NSScreen.screens.first else { return }
+        let frame = window.frame
+        let top = screen.frame.maxY - frame.maxY
+        let shot = Process()
+        shot.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
+        shot.arguments = ["-x", "-R", "\(Int(frame.minX)),\(Int(top)),\(Int(frame.width)),\(Int(frame.height))", path]
+        try? shot.run()
+        shot.waitUntilExit()
+        print("SNAPSHOT \(path)")
     }
 
     /// Captures the real window with screencapture, so glass, sidebars, and
