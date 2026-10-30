@@ -65,3 +65,15 @@ Nothing applied in this check-in.
 The top recommendation is done: `CacheClearer` with `HelperCacheClearer` (XPC)
 and `FakeCacheClearer`, used by the window, the gear menu, and the self-test.
 The two Speculative cards stand; nothing new reached Strong.
+
+## Follow-up after M3 (2026-10-30)
+
+Survey: 2,560 lines; largest `SelfTest.swift` and `Snapshot.swift` (both
+under 300). M3 added two Kit rule types (`AutoClearRules`,
+`PressureAlertRules`, unit tested with an injected clock) and a fourth real
+seam, `Notifier` (system, fake). One fix-log entry (clock mix in the cooldown).
+
+New card, **Speculative**: `AppModel.init` now picks four test or real
+adapters with `if Store.isOverridden`. A `Dependencies` value (`.live`,
+`.test`) would keep that choice in one place. Worth it when a fifth seam
+arrives. Nothing reached Strong; nothing applied.
