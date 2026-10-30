@@ -45,3 +45,10 @@ shortcut works only while the menu is open.
 Fix: the window's root view is focusable (no focus effect), takes focus on appear,
 and handles the keys. The self-test sends real key events to the real window.
 Rule: test keyboard stories by sending key events to the opened window, never by calling the handler.
+
+## Swap self-test check failed now and then (2026-10-30)
+
+Symptom: "swap matches sysctl vm.swapusage" failed once in three runs with 8 GB of swap in use.
+Cause: it compared the exact text ("7993.25M") of two reads taken a moment apart, while swap was moving.
+Fix: parse the number and allow 3 %, like the other memory checks.
+Rule: compare live system numbers with a tolerance, never as exact text.

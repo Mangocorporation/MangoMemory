@@ -118,7 +118,7 @@ final class CleanFlow {
     /// How long the result line stays.
     var resultDuration: Duration = .seconds(10)
     /// Called after every clear that finished, whatever started it.
-    var onCleared: ((CleanResult) -> Void)?
+    private var clearedHandlers: [(CleanResult) -> Void] = []
 
     private let clearer: any CacheClearer
     private let measure: () async -> MemoryStats?
@@ -149,6 +149,11 @@ final class CleanFlow {
 
     func openLoginItems() { clearer.openLoginItems() }
 
+    /// Adds a listener for finished clears (automatic clearing, the pressure chart).
+    func whenCleared(_ handler: @escaping (CleanResult) -> Void) {
+        clearedHandlers.append(handler)
+    }
+
     func clear(trigger: CleanTrigger) async {
         refreshStatus()
         guard helperStatus == .ready, !isClearing else { return }
@@ -162,7 +167,7 @@ final class CleanFlow {
             if let before, let after = await measure() {
                 let result = CleanResult(date: .now, trigger: trigger, before: before, after: after)
                 show(.done(result))
-                onCleared?(result)
+                for handler in clearedHandlers { handler(result) }
             } else {
                 show(.idle)
             }

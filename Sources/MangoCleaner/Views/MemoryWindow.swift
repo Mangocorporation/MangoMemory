@@ -15,7 +15,7 @@ struct MemoryWindow: View {
             PressureHeader(stats: model.monitor.windowStats)
                 .gridProbe("header", area: "window")
             if let stats = model.monitor.windowStats {
-                MemoryBreakdown(stats: stats)
+                MemoryBreakdown(stats: stats, history: model.monitor.windowHistory)
                     .gridProbe("breakdown", area: "window")
             }
             TopAppsList()
@@ -25,6 +25,14 @@ struct MemoryWindow: View {
                 .overlay(alignment: .top) { Divider() }
             CleanSection()
                 .gridProbe("clean", area: "window")
+            if let line = model.monitor.selfUsageLine {
+                Text(line)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+                    .frame(maxWidth: .infinity)
+                    .help("What MangoCleaner itself uses")
+            }
         }
         .padding(Space.margin)
         .gridArea("window")
@@ -82,6 +90,7 @@ struct PressureHeader: View {
             }
             .accessibilityElement(children: .combine)
             Spacer()
+            HelpButton()
             GearMenu(stats: stats)
         }
     }

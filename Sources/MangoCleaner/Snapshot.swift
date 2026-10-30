@@ -34,6 +34,10 @@ enum Snapshot {
             after.pressurePercent = 26
             stage(model, clean: .done(CleanResult(date: .now, trigger: .button, before: SampleData.stats(), after: after)))
         }),
+        ("window-help", { model in
+            stage(model)
+            model.showingHelp = true
+        }),
         ("window-clean-error", { stage($0, clean: .failed("Unable to clear the file cache. The helper didn't respond.")) }),
     ]
 
@@ -45,7 +49,9 @@ enum Snapshot {
                               helper: HelperStatus = .ready, clean: CleanFlow.State = .idle) {
         model.monitor.stop()
         model.cleanFlow.show(clean, helper: helper)
-        model.monitor.show(SampleData.stats(level: level), topApps: SampleData.apps)
+        model.monitor.show(SampleData.stats(level: level), topApps: SampleData.apps,
+                           history: SampleData.history(), selfUsage: SampleData.selfUsage)
+        model.showingHelp = false
         for app in SampleData.apps { model.quitFlow.show(nil, for: app.pid) }
         model.focusedApp = focus
     }
@@ -112,6 +118,14 @@ enum Snapshot {
                         continue
                     }
                     capture(to: "\(dir)/\(page.name)-\(mode).png", window: window)
+                    // A popover is a window of its own: capture it too.
+                    if let popover = NSApp.windows.first(where: { $0.isVisible && $0.className.contains("Popover") }) {
+                        // Let it finish appearing: mid-animation it is translucent and clipped.
+                        try? await Task.sleep(for: .seconds(1))
+                        capture(to: "\(dir)/\(page.name)-popover-\(mode).png", window: popover)
+                        model.showingHelp = false
+                        try? await Task.sleep(for: .seconds(0.3))
+                    }
                     // A second click closes it, so the next click opens it again.
                     MenuBarItem.button?.performClick(nil)
                     try? await Task.sleep(for: .seconds(0.5))

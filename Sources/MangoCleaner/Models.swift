@@ -27,6 +27,8 @@ final class AppModel {
     var focusedApp: Int32?
     /// The app waiting for its "Force Quit …?" confirmation (S-007).
     var confirming: AppUsage?
+    /// The popover that explains each number (S-021).
+    var showingHelp = false
     /// Settings reopens on the last tab. Test and snapshot runs leave it alone.
     var settingsTab: SettingsTab = SettingsTab(rawValue: Store.defaults.string(forKey: "settings.tab") ?? "") ?? .general {
         didSet { Store.defaults.set(settingsTab.rawValue, forKey: "settings.tab") }
@@ -61,6 +63,7 @@ final class AppModel {
             notifier = system
         }
         alerts = PressureAlerts(notifier: notifier) { [monitor] in await monitor.appSizes().first }
+        cleanFlow.whenCleared { [weak monitor] result in monitor?.recordClean(at: result.date) }
         monitor.onStats = { [weak autoClear, weak alerts] stats in
             autoClear?.reading(stats.level)
             alerts?.reading(stats.level)

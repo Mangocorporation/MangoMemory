@@ -26,10 +26,33 @@ nonisolated enum SampleData {
     }
 }
 
+extension SampleData {
+    /// An hour that climbs to High, gets cleared 20 minutes ago, and settles.
+    static func history(now: Date = .now) -> PressureHistory {
+        var history = PressureHistory()
+        for minute in stride(from: 59, through: 0, by: -1) {
+            let level: PressureLevel = (22...30).contains(minute) ? .high : minute == 25 ? .critical : .normal
+            let percent = (22...30).contains(minute) ? 62 + (30 - minute) : 30 + (minute % 7)
+            var stats = SampleData.stats(level: level)
+            stats.pressurePercent = percent
+            history.append(stats, at: now.addingTimeInterval(TimeInterval(-minute * 60)))
+            if minute == 21 { history.cleared(at: now.addingTimeInterval(-21 * 60 + 10)) }
+        }
+        return history
+    }
+
+    static let selfUsage = "MangoCleaner: 0.2 % CPU · 28 MB"
+}
+
 nonisolated struct SampleMemorySource: MemorySource {
     func stats() -> MemoryStats? { SampleData.stats() }
 
     func topApps(_ limit: Int, apps: [AppUsage], excluding: Int32) -> [AppUsage] {
         Array(SampleData.apps.prefix(limit))
+    }
+
+    /// 0.2 % CPU and 28 MB, like the snapshots.
+    func selfUsage() -> (cpu: TimeInterval, footprint: UInt64) {
+        (ProcessInfo.processInfo.systemUptime * 0.002, 28 * 1_048_576)
     }
 }

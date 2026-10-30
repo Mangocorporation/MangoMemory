@@ -48,6 +48,6 @@ SystemMemory: host_statistics64, sysctl, proc_pid_rusage, responsible pid (nonis
   begin; clears from the button or the menu start it when they finish.
 
 - `MemoryMonitor.refresh()` reads off the main thread and assigns only changed values.
-- The menu bar label reads `stats`; window views read `windowStats` and
-  `topApps`, which change only while the window is open (docs/FIXLOG.md).
+- The menu bar label reads `stats`; window views read `windowStats`,
+  `windowHistory`, `selfUsageLine`, and `topApps`, which change only while the window is open (docs/FIXLOG.md).
 - Settings live in `Store.defaults` (a separate suite in test runs).

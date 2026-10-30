@@ -318,15 +318,27 @@ Depends: S-004
 Acceptance:
 - [snap] A 60-minute area chart under the breakdown, colored by level, with clean events marked.
 - [unit] The history ring buffer keeps one sample per refresh for an hour and drops older ones.
-Status: todo
+UX:
+- Flow: open the memory window -> the chart sits under the breakdown -> hover for what it shows
+- Surface: inline in the window (information, no action)
+- States: first minutes: few bars; each minute one bar in its level's color (Normal green, High yellow, Critical red); dashed accent line at each Clear File Cache
+- Words: "1 hour ago", "Now", tooltip "Memory pressure over the last hour. Dashed lines mark each Clear File Cache."
+- Access: VoiceOver reads "Pressure over the last hour: highest 69 %, 1 clear."
+Status: done
 
 ### S-021 Learn what each number means
 As the user, I hover a row or press the info button to read a one-line explanation in my own words.
-Screens: 05-help-details.png, 06-help-hogs.png; snapshot `window-help`
+Screens: 05-help-details.png, 06-help-hogs.png; snapshot `window-help`, `window-help-popover`
 Depends: S-004
 Acceptance:
 - [snap] Each breakdown row has a tooltip; an info button opens a popover with one sentence per metric, including why "Free" being low is normal.
-Status: todo
+UX:
+- Flow: hover a breakdown row -> one-sentence tooltip; or click (i) by the gear -> popover with every number -> Escape or click outside closes
+- Surface: popover (a few related explanations tied to one control)
+- States: one fixed text; Free explains that low Free is normal
+- Words: button "What These Numbers Mean", tooltip "Explain what each number means"
+- Access: rows carry the sentence as their VoiceOver hint
+Status: done
 
 ### S-022 See MangoCleaner's own footprint
 As the user, I see how much CPU and memory MangoCleaner itself uses.
@@ -334,8 +346,14 @@ Screens: snapshot `window`
 Depends: S-005
 Acceptance:
 - [snap] A small footer line "MangoCleaner: 0.2 % CPU · 28 MB".
-- [self] Idle footprint stays under 40 MB.
-Status: todo
+- [manual] Idle footprint stays under 40 MB: `footprint $(pgrep -x MangoCleaner)` after a minute idle read 20 MB, 0.0 % CPU (2026-10-30).
+UX:
+- Flow: open the window -> footer line at the bottom
+- Surface: inline caption (information)
+- States: shown after the second reading in an open window (CPU needs two readings)
+- Words: "MangoCleaner: 0.2 % CPU · 28 MB"
+- Access: plain text
+Status: done
 
 ## M6 Settings and polish
 

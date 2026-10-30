@@ -40,6 +40,7 @@ enum SelfTest {
             await autoClear()
             await alerts(model)
             await keyboard(model)
+            await insight(model)
             refreshInterval(model)
 
             print(failures == 0 ? "SELFTEST PASS \(count) checks" : "SELFTEST FAIL \(failures) of \(count) checks")
@@ -67,8 +68,13 @@ enum SelfTest {
             check("vm_stat runs", false)
         }
         let swap = shell("/usr/sbin/sysctl", ["-n", "vm.swapusage"])
-        let swapUsed = swap.split(separator: " ").firstIndex(of: "used").map { _ in true } ?? false
-        check("swap matches sysctl vm.swapusage", swapUsed && swap.contains(String(format: "%.2fM", Double(stats.swapUsed) / 1_048_576)),
+        // "total = 10240.00M  used = 7993.25M  free = ...": swap moves between the two reads, so allow 3 %.
+        let words = swap.split(separator: " ")
+        let used = words.firstIndex(of: "used").flatMap { index -> UInt64? in
+            guard index + 2 < words.count, let mb = Double(words[index + 2].dropLast()) else { return nil }
+            return UInt64(mb * 1_048_576)
+        }
+        check("swap matches sysctl vm.swapusage", used.map { close(stats.swapUsed, $0) } ?? false,
               swap.trimmingCharacters(in: .whitespacesAndNewlines))
         print("INFO \(stats.level.title), \(stats.pressurePercent) % pressure, \(ByteText.string(stats.available)) available")
     }
@@ -246,6 +252,24 @@ enum SelfTest {
                                                isARepeat: false, keyCode: UInt16(code)) else { continue }
             NSApp.sendEvent(event)
         }
+    }
+
+    /// S-020, S-022: the hour of history fills from readings and marks clears;
+    /// MangoCleaner's own footprint stays small.
+    private static func insight(_ model: AppModel) async {
+        let monitor = MemoryMonitor(source: SampleMemorySource())
+        monitor.windowIsOpen = true
+        await monitor.refresh()
+        await monitor.refresh()
+        monitor.recordClean(at: .now)
+        check("each reading adds to the hour of history", monitor.windowHistory.samples.count == 2)
+        check("a clear is marked on the chart", monitor.windowHistory.clears.count == 1)
+        check("MangoCleaner's own use is shown", monitor.selfUsageLine == SampleData.selfUsage,
+              monitor.selfUsageLine ?? "nil")
+        // Not idle here: the self-test just drew every view. Idle is measured on the
+        // running app with `footprint` (docs/STORIES.md, S-022).
+        let footprint = SystemMemory.selfUsage().footprint
+        check("reads MangoCleaner's own footprint", footprint > 0, ByteText.string(footprint))
     }
 
     /// S-009: the refresh interval is saved.

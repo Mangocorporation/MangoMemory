@@ -45,7 +45,7 @@ final class AutoClear {
 
         // A clear from the button or the menu starts the shared cooldown too.
         // Automatic clears already started it when they began (see `start`).
-        cleanFlow.onCleared = { [weak self] result in
+        cleanFlow.whenCleared { [weak self] result in
             guard let self else { return }
             if result.trigger == .pressure || result.trigger == .afterQuit {
                 lastResult = result

@@ -59,6 +59,14 @@ nonisolated enum SystemMemory {
         }
     }
 
+    /// MangoCleaner's own CPU time so far and footprint (S-022).
+    static func selfUsage() -> (cpu: TimeInterval, footprint: UInt64) {
+        var usage = rusage()
+        getrusage(RUSAGE_SELF, &usage)
+        func seconds(_ time: timeval) -> TimeInterval { TimeInterval(time.tv_sec) + TimeInterval(time.tv_usec) / 1_000_000 }
+        return (seconds(usage.ru_utime) + seconds(usage.ru_stime), footprint(of: getpid()) ?? 0)
+    }
+
     private static func footprint(of pid: pid_t) -> UInt64? {
         var info = rusage_info_v4()
         let result = withUnsafeMutablePointer(to: &info) {

@@ -54,6 +54,7 @@ enum MemoryPart: String, CaseIterable, Identifiable {
 /// The stacked bar and the details rows (S-004).
 struct MemoryBreakdown: View {
     let stats: MemoryStats
+    let history: PressureHistory
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.md) {
@@ -72,11 +73,14 @@ struct MemoryBreakdown: View {
                             .frame(maxWidth: .infinity, alignment: .trailing)
                     }
                     .font(.callout)
+                    .help(part.explanation)
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel("\(part.title), \(part.value(in: stats))")
+                    .accessibilityHint(part.explanation)
                 }
             }
             .animation(Motion.numberRoll, value: stats)
+            PressureChart(history: history)
         }
     }
 
