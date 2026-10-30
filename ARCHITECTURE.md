@@ -42,6 +42,8 @@ SystemMemory: host_statistics64, sysctl, proc_pid_rusage, responsible pid (nonis
 
 - `MemoryMonitor.onStats` feeds every reading to `AutoClear` and `PressureAlerts`.
   Their rules are value types in the Kit with the clock passed in, so unit tests never wait.
+- `MenuBarItem.toggle()` clicks the app's own status item: the one way the global
+  shortcut (`GlobalHotKey`, Carbon), snapshots, and the self-test open the window.
 - One 3-minute cooldown covers every clear. Automatic clears start it when they
   begin; clears from the button or the menu start it when they finish.
 

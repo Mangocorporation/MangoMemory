@@ -70,7 +70,7 @@ enum Snapshot {
             NSApp.windows.first { $0.isVisible && !before.contains($0.windowNumber) && !$0.className.contains("StatusBar") }
         }
         for _ in 1...3 {
-            menuBarButton()?.performClick(nil)
+            MenuBarItem.button?.performClick(nil)
             for _ in 1...20 {
                 try? await Task.sleep(for: .milliseconds(100))
                 if let window = opened() {
@@ -81,18 +81,6 @@ enum Snapshot {
             }
         }
         return nil
-    }
-
-    private static func menuBarButton() -> NSStatusBarButton? {
-        NSApp.windows
-            .filter { $0.className.contains("StatusBar") }
-            .compactMap { $0.contentView.flatMap(statusButton(in:)) }
-            .first
-    }
-
-    private static func statusButton(in view: NSView) -> NSStatusBarButton? {
-        if let button = view as? NSStatusBarButton { return button }
-        return view.subviews.lazy.compactMap(statusButton(in:)).first
     }
 
     static func runIfRequested(model: AppModel, openSettings: OpenSettingsAction) {
@@ -125,7 +113,7 @@ enum Snapshot {
                     }
                     capture(to: "\(dir)/\(page.name)-\(mode).png", window: window)
                     // A second click closes it, so the next click opens it again.
-                    menuBarButton()?.performClick(nil)
+                    MenuBarItem.button?.performClick(nil)
                     try? await Task.sleep(for: .seconds(0.5))
                 }
             }
@@ -133,7 +121,7 @@ enum Snapshot {
             for page in statusPages where only?.contains(page.name) ?? true {
                 stage(model, level: page.level)
                 try? await Task.sleep(for: .seconds(0.5))
-                captureRegion(to: "\(dir)/\(page.name).png", of: menuBarButton()?.window)
+                captureRegion(to: "\(dir)/\(page.name).png", of: MenuBarItem.button?.window)
             }
             if only == nil || only?.contains("settings") == true {
                 stageAutomation(model)

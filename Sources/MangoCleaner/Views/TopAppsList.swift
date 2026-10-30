@@ -5,7 +5,6 @@ import SwiftUI
 /// The five apps using the most memory, with Quit and Force Quit (S-005 to S-007).
 struct TopAppsList: View {
     @Environment(AppModel.self) private var model
-    @State private var confirming: AppUsage?
 
     var body: some View {
         @Bindable var model = model
@@ -24,7 +23,7 @@ struct TopAppsList: View {
                                state: model.quitFlow.states[app.pid],
                                focused: model.focusedApp == app.pid,
                                quit: { model.quitFlow.quit(app) },
-                               forceQuit: { confirming = app })
+                               forceQuit: { model.confirming = app })
                             .onHover { inside in
                                 if inside { model.focusedApp = app.pid }
                                 else if model.focusedApp == app.pid { model.focusedApp = nil }
@@ -34,17 +33,12 @@ struct TopAppsList: View {
                 // Rows pad their hover fill; pull them out so icons line up with the title.
                 .padding(.horizontal, -Space.sm)
                 .animation(Motion.listChange, value: apps.map(\.pid))
-                .focusable()
-                .focusEffectDisabled()
-                .onKeyPress(.downArrow) { move(1, in: apps); return .handled }
-                .onKeyPress(.upArrow) { move(-1, in: apps); return .handled }
-                .onKeyPress(.return) { quitFocused(in: apps); return .handled }
             }
         }
         .onChange(of: apps.map(\.pid)) { _, _ in model.quitFlow.prune(keeping: apps) }
-        .confirmationDialog(confirming.map(ForceQuitText.title) ?? "",
-                            isPresented: Binding(get: { confirming != nil }, set: { if !$0 { confirming = nil } }),
-                            presenting: confirming) { app in
+        .confirmationDialog(model.confirming.map(ForceQuitText.title) ?? "",
+                            isPresented: Binding(get: { model.confirming != nil }, set: { if !$0 { model.confirming = nil } }),
+                            presenting: model.confirming) { app in
             Button("Force Quit", role: .destructive) { model.quitFlow.forceQuit(app) }
             Button("Cancel", role: .cancel) {}
         } message: { app in
@@ -52,19 +46,6 @@ struct TopAppsList: View {
         }
     }
 
-    private func move(_ step: Int, in apps: [AppUsage]) {
-        let index = apps.firstIndex { $0.pid == model.focusedApp }.map { $0 + step } ?? (step > 0 ? 0 : apps.count - 1)
-        model.focusedApp = apps[max(0, min(apps.count - 1, index))].pid
-    }
-
-    private func quitFocused(in apps: [AppUsage]) {
-        guard let app = apps.first(where: { $0.pid == model.focusedApp }) else { return }
-        switch model.quitFlow.states[app.pid] {
-        case .refused?: confirming = app
-        case nil: model.quitFlow.quit(app)
-        case .quitting?: break
-        }
-    }
 }
 
 /// The words of the Force Quit confirmation (S-007).

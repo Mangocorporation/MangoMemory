@@ -34,6 +34,7 @@ use these words only.
 | Allow Helper… | Register the helper; macOS then asks for approval in Login Items | install, enable, authorize |
 | Automation | The Settings tab for Clear automatically | Advanced, auto |
 | Notifications | The Settings tab for alerts when pressure rises | alerts, warnings |
+| Memory window shortcut | The keys that open and close the memory window from any app (⌃⌥M) | hotkey, global key |
 | Clear automatically | Clear File Cache on its own when pressure stays high or a big app quits | auto clean, smart clean |
 | Settings… | Open the Settings window (⌘,) | Preferences, options |
 | About MangoCleaner | Open the About window | info |

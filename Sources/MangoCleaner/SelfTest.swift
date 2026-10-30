@@ -1,4 +1,5 @@
 import AppKit
+import Carbon.HIToolbox
 import MangoCleanerKit
 
 /// Self-test for agents: runs the app's real functions, prints PASS or FAIL
@@ -38,6 +39,7 @@ enum SelfTest {
             await cleanFlow()
             await autoClear()
             await alerts(model)
+            await keyboard(model)
             refreshInterval(model)
 
             print(failures == 0 ? "SELFTEST PASS \(count) checks" : "SELFTEST FAIL \(failures) of \(count) checks")
@@ -178,7 +180,7 @@ enum SelfTest {
 
     /// S-017: one notification when pressure turns critical, naming the top app. Fake notifier only.
     private static func alerts(_ model: AppModel) async {
-        check("test runs never post real notifications", model.fakeNotifier != nil)
+        check("test runs never post real notifications", model.fakes != nil)
         let notifier = FakeNotifier()
         let alerts = PressureAlerts(notifier: notifier) { SampleData.apps.first }
         let start = Date.now
@@ -189,6 +191,61 @@ enum SelfTest {
         check("the notification names the top app",
               notifier.posted.first?.body == "Safari uses the most memory: 6.1 GB." && notifier.posted.first?.quit?.name == "Safari")
         check("notify when Critical is on by default", alerts.whenCritical && !alerts.whenHigh)
+    }
+
+    /// S-018, S-019: the shortcut, and the memory window driven by keys alone.
+    /// Keys go through the app's own event queue to the real window.
+    private static func keyboard(_ model: AppModel) async {
+        check("the default shortcut is ⌃⌥M", model.shortcut?.display == "⌃⌥M")
+        guard let fakes = model.fakes else { return }
+        model.monitor.stop()
+        model.monitor.show(SampleData.stats(), topApps: SampleData.apps)
+        model.focusedApp = nil
+        guard let window = await openWindow() else {
+            check("the menu bar item opens the memory window", false)
+            return
+        }
+        check("the menu bar item opens the memory window", true)
+        key(kVK_DownArrow, "\u{F701}", in: window)
+        key(kVK_DownArrow, "\u{F701}", in: window)
+        check("↓ selects app rows", model.focusedApp == SampleData.apps[1].pid)
+        key(kVK_UpArrow, "\u{F700}", in: window)
+        check("↑ moves the selection up", model.focusedApp == SampleData.apps[0].pid)
+        key(kVK_Return, "\r", in: window)
+        check("Return quits the selected app", fakes.quitter.quitRequests == [SampleData.apps[0].pid])
+        let clears = fakes.clearer.clears
+        key(kVK_ANSI_K, "k", flags: .command, in: window)
+        try? await Task.sleep(for: .seconds(1.5))
+        check("⌘K clears the file cache", fakes.clearer.clears == clears + 1)
+        key(kVK_Escape, "\u{1B}", in: window)
+        try? await Task.sleep(for: .seconds(0.5))
+        check("Escape closes the window", !window.isVisible)
+    }
+
+    private static func openWindow() async -> NSWindow? {
+        let before = Set(NSApp.windows.filter(\.isVisible).map(\.windowNumber))
+        MenuBarItem.toggle()
+        for _ in 1...30 {
+            try? await Task.sleep(for: .milliseconds(100))
+            if let window = NSApp.windows.first(where: {
+                $0.isVisible && !before.contains($0.windowNumber) && !$0.className.contains("StatusBar")
+            }) {
+                try? await Task.sleep(for: .milliseconds(500))
+                return window
+            }
+        }
+        return nil
+    }
+
+    private static func key(_ code: Int, _ characters: String, flags: NSEvent.ModifierFlags = [], in window: NSWindow) {
+        for type in [NSEvent.EventType.keyDown, .keyUp] {
+            guard let event = NSEvent.keyEvent(with: type, location: .zero, modifierFlags: flags,
+                                               timestamp: ProcessInfo.processInfo.systemUptime,
+                                               windowNumber: window.windowNumber, context: nil,
+                                               characters: characters, charactersIgnoringModifiers: characters,
+                                               isARepeat: false, keyCode: UInt16(code)) else { continue }
+            NSApp.sendEvent(event)
+        }
     }
 
     /// S-009: the refresh interval is saved.

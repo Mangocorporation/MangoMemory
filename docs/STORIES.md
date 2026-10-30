@@ -286,7 +286,13 @@ Depends: S-003
 Acceptance:
 - [snap] Settings > General has a shortcut recorder (default ⌃⌥M).
 - [manual] The shortcut opens the window from any app and toggles it closed.
-Status: todo
+UX:
+- Flow: ⌃⌥M from any app -> the memory window drops down from the menu bar item -> ⌃⌥M or Escape closes it
+- Surface: Settings › General › "Memory window shortcut": a recorder button (click, type, done)
+- States: recording "Type Shortcut" (Escape cancels, Delete removes); taken by another app: red footer "Another app uses ⌃⌥M. Record a different shortcut."; removed: "Record Shortcut"
+- Words: "Memory window shortcut", "Record Shortcut", "Type Shortcut", "Remove Shortcut"
+- Access: the recorder is a button; tooltip says how to record
+Status: done
 
 ### S-019 Use the window with the keyboard
 As the user, I move through the top apps with arrows and act with the keyboard.
@@ -295,7 +301,13 @@ Depends: S-006
 Acceptance:
 - [self] ↑/↓ select app rows, Return quits the selected app, ⌘K clears the file cache, Escape closes the window.
 - [manual] VoiceOver reads each row as "Safari, 6.1 GB, Quit button".
-Status: todo
+UX:
+- Flow: open the window -> ↓/↑ select a Top Apps row -> Return quits it (asks to Force Quit if it refused) -> ⌘K clears the file cache -> Escape closes
+- Surface: the memory window; it takes the keys as soon as it opens, with no focus ring
+- States: selection and hover share one highlight
+- Words: unchanged
+- Access: VoiceOver reads "Safari, 6.1 GB" with a Quit action
+Status: done
 
 ## M5 Insight
 

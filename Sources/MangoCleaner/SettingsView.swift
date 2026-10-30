@@ -63,6 +63,7 @@ struct GeneralSettings: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
+        @Bindable var model = model
         @Bindable var monitor = model.monitor
         Section {
             Picker("Refresh interval", selection: $monitor.refreshInterval) {
@@ -73,6 +74,19 @@ struct GeneralSettings: View {
         } footer: {
             if monitor.refreshInterval < 2 {
                 Text("Faster refresh uses more energy.")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        Section {
+            LabeledContent("Memory window shortcut") {
+                ShortcutRecorder(shortcut: $model.shortcut) { model.pauseShortcut($0) }
+            }
+        } footer: {
+            if model.shortcutTaken, let shortcut = model.shortcut {
+                Text("Another app uses \(shortcut.display). Record a different shortcut.")
+                    .foregroundStyle(.red)
+            } else {
+                Text("Opens and closes the memory window from any app.")
                     .foregroundStyle(.secondary)
             }
         }

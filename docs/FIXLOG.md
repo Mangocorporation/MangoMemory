@@ -35,3 +35,13 @@ the cooldown back to an earlier time, so the next reading was already past it.
 Fix: automatic clears start the cooldown once, when they begin; the end-of-clear
 hook counts only clears from the button or the menu.
 Rule: feed a time-based rule one clock. Never mix a passed-in `now` with `Date.now` from a callback.
+
+## Arrow keys and ⌘K did nothing in the memory window until a click (2026-10-30)
+
+Symptom: ↓, ↑, Return, ⌘K, and Escape did nothing right after the memory window opened.
+Cause: the key handlers sat on the Top Apps list, which had focus only after a click;
+the window itself was the first responder. ⌘K lived only on a gear menu item, whose
+shortcut works only while the menu is open.
+Fix: the window's root view is focusable (no focus effect), takes focus on appear,
+and handles the keys. The self-test sends real key events to the real window.
+Rule: test keyboard stories by sending key events to the opened window, never by calling the handler.

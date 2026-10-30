@@ -6,6 +6,9 @@ import SwiftUI
 /// the breakdown, and Top Apps.
 struct MemoryWindow: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.openSettings) private var openSettings
+    /// The window takes the keys as soon as it opens (S-019): nothing else has focus.
+    @FocusState private var takesKeys: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.lg) {
@@ -26,7 +29,25 @@ struct MemoryWindow: View {
         .padding(Space.margin)
         .gridArea("window")
         .frame(width: 320)
+        .focusable()
+        .focusEffectDisabled()
+        .focused($takesKeys)
+        .onKeyPress(.downArrow) { model.moveFocus(1); return .handled }
+        .onKeyPress(.upArrow) { model.moveFocus(-1); return .handled }
+        .onKeyPress(.return) { model.quitFocused(); return .handled }
+        .onKeyPress(.escape) { MenuBarItem.button?.performClick(nil); return .handled }
+        // The gear menu's shortcuts work only while it is open; these work any time.
+        .onKeyPress(keys: ["k", ",", "q"]) { press in
+            guard press.modifiers == .command else { return .ignored }
+            switch press.key {
+            case "k": Task { await model.cleanFlow.clear(trigger: .menu) }
+            case ",": openSettings(); NSApp.activate()
+            default: NSApp.terminate(nil)
+            }
+            return .handled
+        }
         .onAppear {
+            takesKeys = true
             model.monitor.windowIsOpen = true
             model.cleanFlow.refreshStatus()
         }
