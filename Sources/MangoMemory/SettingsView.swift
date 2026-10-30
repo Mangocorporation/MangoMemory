@@ -103,8 +103,32 @@ struct GeneralSettings: View {
             }
         }
         ICloudSyncSection()
+        UpdatesSection()
+    }
+}
+
+/// Settings › General › Updates: the version, Check Now, and daily checks.
+struct UpdatesSection: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        @Bindable var updater = model.updater
         Section {
-            LabeledContent("Version", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—")
+            LabeledContent("Version") {
+                HStack(spacing: Space.sm) {
+                    Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—")
+                    Button("Check Now") {
+                        NSApp.activate()
+                        updater.check()
+                    }
+                    .disabled(!updater.enabled || !updater.canCheck)
+                }
+            }
+            Toggle("Check for updates automatically", isOn: $updater.checksAutomatically)
+                .disabled(!updater.enabled)
+        } footer: {
+            Text("Once a day, MangoMemory asks its website whether a newer version exists. Updates are signed and checked before they install.")
+                .foregroundStyle(.secondary)
         }
     }
 }

@@ -4,14 +4,20 @@ import PackageDescription
 let package = Package(
     name: "MangoMemory",
     platforms: [.macOS(.v26)],
+    dependencies: [
+        // Check for Updates: downloads, verifies, and installs new releases (docs/RELEASE.md).
+        .package(url: "https://github.com/sparkle-project/Sparkle", exact: "2.10.1"),
+    ],
     targets: [
         // Rules and data logic with no SwiftUI, so tests run without the app.
         .target(name: "MangoMemoryKit"),
         .executableTarget(
             name: "MangoMemory",
-            dependencies: ["MangoMemoryKit"],
+            dependencies: ["MangoMemoryKit", .product(name: "Sparkle", package: "Sparkle")],
             // App code runs on the main thread unless you say otherwise.
-            swiftSettings: [.defaultIsolation(MainActor.self)]
+            swiftSettings: [.defaultIsolation(MainActor.self)],
+            // build.sh copies Sparkle.framework into Contents/Frameworks.
+            linkerSettings: [.unsafeFlags(["-Xlinker", "-rpath", "-Xlinker", "@executable_path/../Frameworks"])]
         ),
         // The root helper that runs purge (SMAppService.daemon). build.sh embeds it.
         .executableTarget(name: "MangoMemoryHelper", dependencies: ["MangoMemoryKit"]),

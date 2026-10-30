@@ -121,7 +121,7 @@ struct PressureHeader: View {
     }
 }
 
-/// Settings, live numbers, About, and Quit (S-008).
+/// Settings, live numbers, About, Check for Updates, and Quit (S-008).
 struct GearMenu: View {
     let stats: MemoryStats?
     var pinned = false
@@ -150,18 +150,31 @@ struct GearMenu: View {
                 NSApp.activate()
                 NSApp.orderFrontStandardAboutPanel(nil)
             }
+            if model.updater.enabled {
+                Button(model.updater.available.map { "Install MangoMemory \($0)…" } ?? "Check for Updates…") {
+                    NSApp.activate()
+                    model.updater.check()
+                }
+                .disabled(!model.updater.canCheck)
+            }
             Button("Quit MangoMemory") { NSApp.terminate(nil) }
                 .keyboardShortcut("q")
         } label: {
             Image(systemName: "gearshape")
                 .foregroundStyle(.secondary)
+                .overlay(alignment: .topTrailing) {
+                    // An update a background check found and no one has looked at yet.
+                    if model.updater.available != nil {
+                        Circle().fill(.tint).frame(width: 6, height: 6).offset(x: 2, y: -2)
+                    }
+                }
         }
         .menuStyle(.button)
         .buttonStyle(.borderless)
         .menuIndicator(.hidden)
         .tint(Color.secondary)
         .fixedSize()
-        .help("Show settings and more")
+        .help(model.updater.available.map { "Show settings and more. MangoMemory \($0) is available." } ?? "Show settings and more")
         .accessibilityLabel("More")
     }
 }

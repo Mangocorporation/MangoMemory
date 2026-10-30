@@ -20,14 +20,33 @@ writes `dist/MangoMemory-<version>.zip` (dist/ is not in git).
 
    It asks for the password and keeps it in your keychain.
 
-`tools/release.sh --check` says which of the two is still missing.
+3. **Update signing key** (Sparkle, for Check for Updates). Made once with
+
+   ```bash
+   ~/Library/Developer/MangoMemory/build/artifacts/sparkle/Sparkle/bin/generate_keys
+   ```
+
+   The private key stays in your login keychain; the public key is
+   `SUPublicEDKey` in `Info.plist.in`. **Back it up**
+   (`generate_keys -x <file>`, kept somewhere safe and never in git): without
+   it, no installed copy will ever accept an update again.
+
+`tools/release.sh --check` says what is still missing.
 
 ## Each release
 
 1. Raise `CFBundleShortVersionString` in `Info.plist.in`.
-2. `tools/release.sh`. Notarization takes a few minutes.
-3. The last line names the zip. `spctl` above it should say
-   "source=Notarized Developer ID".
+2. Write what changed in `docs/releases/<version>.md` (Markdown). Check for
+   Updates shows it, and so does the GitHub release.
+3. `tools/release.sh`. Notarization takes a few minutes. `spctl` should say
+   "source=Notarized Developer ID". The script signs the zip with the update
+   key and adds it to `site/appcast.xml`.
+4. `tools/publish.sh`. It creates the GitHub release with the zip, waits until
+   the zip downloads, and only then commits and pushes the feed. The other
+   order would offer an update that does not exist yet.
+
+Every Mac running 0.1.3 or later sees the update within a day, or at once
+with gear › Check for Updates….
 
 The helper accepts only MangoMemory signed by team SJR7785KA2, so a Developer
 ID build and a development build both work with it.

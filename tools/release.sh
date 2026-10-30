@@ -9,6 +9,8 @@
 # Needs, once per Mac (see docs/RELEASE.md):
 #   - a "Developer ID Application" certificate for team SJR7785KA2 in the keychain
 #   - notarization credentials saved with: xcrun notarytool store-credentials MangoMemory
+#   - the Sparkle signing key, made once with generate_keys (docs/RELEASE.md)
+# And, for each release, its notes in docs/releases/<version>.md.
 set -euo pipefail
 here=${0:A:h:h}
 name=MangoMemory
@@ -23,6 +25,19 @@ missing=()
 identity=$(security find-identity -v -p codesigning 2>/dev/null | grep -o "\"Developer ID Application: [^\"]*($team)\"" | head -1 | tr -d '"' || true)
 [[ -n "$identity" ]] || missing+=("Developer ID Application certificate for team $team")
 xcrun notarytool history --keychain-profile "$profile" >/dev/null 2>&1 || missing+=("notarization credentials (keychain profile \"$profile\")")
+scratch="$HOME/Library/Developer/$name/build"
+sparkle="$scratch/artifacts/sparkle/Sparkle/bin"
+[[ -x "$sparkle/sign_update" ]] || swift package resolve --package-path "$here" --scratch-path "$scratch" >/dev/null
+# The key in the keychain must be the one the app trusts (SUPublicEDKey in Info.plist.in).
+public_key=$("$sparkle/generate_keys" -p 2>/dev/null || true)
+if [[ -z "$public_key" ]]; then
+  missing+=("Sparkle signing key (run $sparkle/generate_keys)")
+elif ! grep -q "<string>$public_key</string>" "$here/Info.plist.in"; then
+  missing+=("SUPublicEDKey in Info.plist.in to match the Sparkle key ($public_key)")
+fi
+version=$(plutil -extract CFBundleShortVersionString raw "$here/Info.plist.in")
+notes="$here/docs/releases/$version.md"
+[[ -f "$notes" ]] || missing+=("release notes in docs/releases/$version.md")
 
 if (( ${#missing} )) && ! $check; then
   print "Missing:"; printf '  - %s\n' "${missing[@]}"
@@ -35,7 +50,6 @@ sign="${identity:-$(security find-identity -v -p codesigning 2>/dev/null | grep 
 rm -rf "$out"
 APP_DIR="$out" SIGN_IDENTITY="$sign" "$here/build.sh" >/dev/null
 app="$out/$name.app"
-version=$(plutil -extract CFBundleShortVersionString raw "$app/Contents/Info.plist")
 
 codesign --verify --strict --deep "$app" && print "signature: valid ($sign)"
 for bin in "$app/Contents/MacOS/$name" "$app/Contents/MacOS/${name}Helper"; do
@@ -61,4 +75,11 @@ xcrun stapler staple "$app"
 rm -f "$zip"
 ditto -c -k --keepParent "$app" "$zip"
 spctl --assess --type execute -vv "$app"
-print "released $zip"
+
+# Check for Updates: sign the zip with the Sparkle key and add it to the feed.
+# The feed goes online with tools/publish.sh, after the zip is on GitHub.
+signature=$("$sparkle/sign_update" "$zip")   # sparkle:edSignature="…" length="…"
+build=$(plutil -extract CFBundleVersion raw "$app/Contents/Info.plist")
+python3 -I "$here/tools/appcast_add.py" "$here/site/appcast.xml" "$version" "$build" "$signature" "$notes"
+print "added $version to site/appcast.xml"
+print "released $zip. Next: tools/publish.sh"

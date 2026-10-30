@@ -32,6 +32,11 @@ enum SelfTest {
             model.settingsTab = .appearance
             check("Settings remembers the last tab", Store.defaults.string(forKey: "settings.tab") == "appearance")
             check("runs without a Dock icon", NSApp.activationPolicy() == .accessory)
+            let info = Bundle.main.infoDictionary ?? [:]
+            check("updates come from the website's feed",
+                  (info["SUFeedURL"] as? String)?.hasPrefix("https://mangocorporation.github.io/") == true)
+            check("updates must carry our signing key", ((info["SUPublicEDKey"] as? String)?.count ?? 0) == 44)
+            check("test runs never check for updates", !model.updater.enabled && !model.updater.canCheck)
 
             readsRealMemory()
             readsRealApps()

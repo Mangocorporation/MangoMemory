@@ -98,8 +98,9 @@ MangoMemory shows what actually matters:
 
 ### Settings
 - **General:** refresh interval, what the menu bar shows, text size, Open at
-  login, the window shortcut, and **Sync settings with iCloud**, which keeps
-  every setting the same on all your Macs through iCloud Drive.
+  login, the window shortcut, **Sync settings with iCloud**, which keeps
+  every setting the same on all your Macs through iCloud Drive, and
+  **Check for updates automatically**.
 - **Automation**, **Notifications**, and **Appearance** (accent color). In
   Multicolor, the accent is mango orange.
 
@@ -116,6 +117,11 @@ notarized by Apple, so it opens without warnings.
    MangoMemory on in **System Settings › General › Login Items & Extensions**. macOS asks
    once per Mac.
 
+From 0.1.3 on, MangoMemory updates itself: gear › **Check for Updates…**, or
+let it check once a day. Updates come through [Sparkle](https://sparkle-project.org),
+are signed with our update key, and must carry our Developer ID signature, or
+they are refused.
+
 ### What the helper is, and why it needs admin rights
 
 `purge` only runs as root. MangoMemory installs a tiny launchd helper through
@@ -128,8 +134,8 @@ Apple's `SMAppService`, which you approve in System Settings. The helper:
 - can be turned off at any time in Login Items.
 
 Everything else (reading memory, quitting apps, notifications) runs as you.
-MangoMemory never touches the network, except iCloud Drive for settings sync
-if you leave it on.
+MangoMemory uses the network for two things only: iCloud Drive for settings
+sync, and once a day, the update check (both can be turned off in Settings).
 
 ## Build from source
 
@@ -150,7 +156,8 @@ cd MangoMemory
 | `tools/selftest.sh` | Runs the app's real code against fakes and prints PASS or FAIL per check |
 | `tools/snap.sh` | Light and dark screenshots of every window state and Settings tab in `/tmp/MangoMemory-shots/` |
 | `tools/grid-lint.sh` | Checks that spacing sits on the 4 pt grid |
-| `tools/release.sh [--check]` | Developer ID build, notarized and stapled, in `dist/` (see [docs/RELEASE.md](docs/RELEASE.md)) |
+| `tools/release.sh [--check]` | Developer ID build, notarized and stapled, in `dist/`, added to the update feed (see [docs/RELEASE.md](docs/RELEASE.md)) |
+| `tools/publish.sh` | The GitHub release, then the update feed, in that order |
 
 Test runs (`APP_STORE` set) use their own settings and a sample memory
 source, so they **never quit a real app, never run `purge`, never post a
@@ -190,7 +197,10 @@ More: [ARCHITECTURE.md](ARCHITECTURE.md) · design tokens in
 MangoMemory has no analytics, no accounts, and no servers. It reads memory
 statistics and the names and memory use of running apps, on your Mac only.
 Settings sync, if on, writes one small JSON file to *your* iCloud Drive
-(`iCloud Drive › MangoMemory › Settings.json`).
+(`iCloud Drive › MangoMemory › Settings.json`). The update check, if on,
+downloads the list of releases from the website once a day
+(`mangocorporation.github.io/MangoMemory/appcast.xml`); like any web request
+it shows your IP address to GitHub, and it sends nothing else.
 
 ## FAQ
 

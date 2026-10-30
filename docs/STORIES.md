@@ -447,6 +447,19 @@ UX:
 Syncs everything, Open at login included (decided by the user, 2026-10-30). The helper is approved per Mac. Uses an iCloud Drive file, not the key-value store, so no provisioning profile is needed.
 Status: done
 
+### S-029 Update MangoMemory from inside the app
+As the user, I choose Check for Updates… and MangoMemory installs the new version itself.
+Screens: snapshot `settings-general`
+Acceptance:
+- [self] The feed is the website's appcast; the app carries the update key; test runs never check.
+- [manual] An older build pointed at a signed local feed downloads the update, installs it on quit, and relaunches as the new version with the helper still running (done 2026-10-30).
+UX:
+- Flow: gear › Check for Updates… -> Sparkle shows the notes -> Install Update -> relaunch; or a daily check -> alert behind other windows plus a dot on the gear -> gear › Install MangoMemory X…
+- Surface: gear menu item; Settings › General: Version with Check Now, and a toggle
+- Words: "Check for Updates…", "Install MangoMemory 0.1.4…", "Check Now", "Check for updates automatically"
+Sparkle 2 (decided by the user, 2026-10-30). Signed with an EdDSA key in the owner's keychain; the feed is site/appcast.xml.
+Status: done
+
 ## Coverage
 
 | Screen | Story |

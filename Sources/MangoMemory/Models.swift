@@ -13,6 +13,8 @@ final class AppModel {
     let alerts: PressureAlerts
     /// Same settings on every Mac, through iCloud Drive.
     private(set) var settingsSync: SettingsSync!
+    /// Check for Updates (Sparkle). Never started in test runs.
+    let updater = Updater()
     /// The fakes behind a test run, so the self-test can see what they were asked.
     let fakes: (quitter: FakeQuitter, clearer: FakeCacheClearer, notifier: FakeNotifier)?
     /// Opens the memory window from any app (S-018). Nil: no shortcut.

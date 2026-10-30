@@ -43,6 +43,9 @@ cp "$bin" "$app/Contents/MacOS/$name"
 cp "$scratch/$config/${name}Helper" "$app/Contents/MacOS/${name}Helper"
 mkdir -p "$app/Contents/Library/LaunchDaemons"
 cp "$here/Helper/com.mangocorp.mangomemory.helper.plist" "$app/Contents/Library/LaunchDaemons/"
+# Sparkle, for Check for Updates. -R keeps the framework's symlinks.
+mkdir -p "$app/Contents/Frameworks"
+cp -R "$scratch/$config/Sparkle.framework" "$app/Contents/Frameworks/"
 sed -e "s/__BUILD__/$(date +%Y%m%d%H%M)/" "$here/Info.plist.in" > "$app/Contents/Info.plist"
 # The icon: Icon/AppIcon.icon -> Resources/Assets.car + AppIcon.icns, rebuilt when it changed.
 if [[ -d "$here/Icon/AppIcon.icon" ]]; then
@@ -59,6 +62,13 @@ flags=(--force --options runtime)
 [[ "$identity" == "Developer ID"* ]] && flags+=(--timestamp)
 codesign $flags --identifier com.mangocorp.mangomemory.helper --sign "$identity" \
   "$app/Contents/MacOS/${name}Helper" 2>&1 | grep -v "replacing existing signature" || true
+# Sparkle from the inside out, as its documentation says: the XPC services, the
+# installer tools, then the framework. The Downloader keeps its entitlements.
+sparkle="$app/Contents/Frameworks/Sparkle.framework/Versions/B"
+for part in XPCServices/Installer.xpc XPCServices/Downloader.xpc Autoupdate Updater.app; do
+  codesign $flags --preserve-metadata=entitlements --sign "$identity" "$sparkle/$part" 2>&1 | grep -v "replacing existing signature" || true
+done
+codesign $flags --sign "$identity" "$app/Contents/Frameworks/Sparkle.framework" 2>&1 | grep -v "replacing existing signature" || true
 codesign $flags --sign "$identity" "$app" 2>&1 | grep -v "replacing existing signature" || true
 echo "installed $app (signed: ${identity})"
 
