@@ -429,6 +429,24 @@ UX:
 - Access: none
 Status: done
 
+## M7 iCloud
+
+### S-028 Keep settings the same on every Mac
+As the user, I change a setting on one Mac and my other Macs pick it up through iCloud.
+Screens: snapshot `settings-general`
+Acceptance:
+- [unit] A newer settings file from another Mac replaces this Mac's; an older or identical one changes nothing.
+- [self] A change here reaches the file; a newer file applies; an older one doesn't; a coordinated write (as iCloud Drive does) is picked up by the watcher.
+- [manual] With two Macs on one iCloud account, a change on one shows on the other within a minute.
+UX:
+- Flow: Settings › General › "Sync settings with iCloud" (on) -> change anything -> the file in iCloud Drive › MangoCleaner updates -> other Macs apply it
+- Surface: inline toggle with a footer line
+- States: iCloud Drive off: toggle disabled, "Turn on iCloud Drive in System Settings › Apple Account › iCloud to sync."; synced: "Synced 2 min ago with <Mac>."
+- Words: "Sync settings with iCloud"
+- Access: standard toggle; the footer is plain text
+Syncs everything, Open at login included (decided by the user, 2026-10-30). The helper is approved per Mac. Uses an iCloud Drive file, not the key-value store, so no provisioning profile is needed.
+Status: done
+
 ## Coverage
 
 | Screen | Story |
@@ -469,4 +487,3 @@ login S-024, own CPU/RAM S-022.
 - Idle-app timer that quits apps on its own.
 - CPU, disk, and network monitoring.
 - Themes, compact mode, more menu bar widget styles.
-- iCloud sync of settings.

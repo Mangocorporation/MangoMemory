@@ -49,6 +49,10 @@ SystemMemory: host_statistics64, sysctl, proc_pid_rusage, responsible pid (nonis
   `MemoryMonitor` counts open memory windows (drop-down and pinned).
 - The menu bar item is one image (`MenuBarLabel.image`): the menu bar shows a
   single image and ignores SwiftUI fonts.
+- `SettingsSync` mirrors every setting to iCloud Drive › MangoCleaner › Settings.json
+  (`SyncedSettings` in the Kit). It watches the settings with Observation, writes a
+  second after a change, and watches the file with an `NSFilePresenter`. Newest wins.
+  Test runs use `/tmp/<APP_STORE>-iCloud`. No iCloud entitlement or profile needed.
 - One 3-minute cooldown covers every clear. Automatic clears start it when they
   begin; clears from the button or the menu start it when they finish.
 

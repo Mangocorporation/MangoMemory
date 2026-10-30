@@ -11,6 +11,8 @@ final class AppModel {
     let cleanFlow: CleanFlow
     let autoClear: AutoClear
     let alerts: PressureAlerts
+    /// Same settings on every Mac, through iCloud Drive.
+    private(set) var settingsSync: SettingsSync!
     /// The fakes behind a test run, so the self-test can see what they were asked.
     let fakes: (quitter: FakeQuitter, clearer: FakeCacheClearer, notifier: FakeNotifier)?
     /// Opens the memory window from any app (S-018). Nil: no shortcut.
@@ -106,6 +108,8 @@ final class AppModel {
         // Test runs never take a system-wide shortcut from the real app.
         hotKey = Store.isOverridden ? nil : GlobalHotKey { MenuBarItem.toggle() }
         registerShortcut()
+        settingsSync = SettingsSync(read: { [unowned self] in syncedValues() },
+                                    apply: { [unowned self] in applySynced($0) })
         monitor.start()
     }
 
@@ -117,6 +121,37 @@ final class AppModel {
     private func registerShortcut() {
         guard let hotKey else { return }
         shortcutTaken = !hotKey.register(shortcut)
+    }
+
+    /// Every setting that syncs, read from where it lives.
+    private func syncedValues() -> SyncedSettings.Values {
+        SyncedSettings.Values(
+            refreshInterval: monitor.refreshInterval, menuBarText: menuBarText.rawValue,
+            largeMenuBarText: largeMenuBarText, openAtLogin: openAtLogin, shortcut: shortcut,
+            clearWhenPressureHigh: autoClear.whenPressureHigh, highFor: autoClear.highFor,
+            clearAfterBigQuit: autoClear.afterBigQuit, bigApp: autoClear.bigApp,
+            notifyCritical: alerts.whenCritical, notifyHigh: alerts.whenHigh,
+            accent: ThemeStore.shared.themeID)
+    }
+
+    /// Settings from another Mac. Sets only what differs, so nothing restarts for no reason.
+    private func applySynced(_ v: SyncedSettings.Values) {
+        if MemoryMonitor.refreshChoices.contains(v.refreshInterval), v.refreshInterval != monitor.refreshInterval {
+            monitor.refreshInterval = v.refreshInterval
+        }
+        if let text = MenuBarText(rawValue: v.menuBarText), text != menuBarText { menuBarText = text }
+        if v.largeMenuBarText != largeMenuBarText { largeMenuBarText = v.largeMenuBarText }
+        if v.openAtLogin != openAtLogin { openAtLogin = v.openAtLogin }
+        if v.shortcut != shortcut { shortcut = v.shortcut }
+        if v.clearWhenPressureHigh != autoClear.whenPressureHigh { autoClear.whenPressureHigh = v.clearWhenPressureHigh }
+        if AutoClearRules.durations.contains(v.highFor), v.highFor != autoClear.highFor { autoClear.highFor = v.highFor }
+        if v.clearAfterBigQuit != autoClear.afterBigQuit { autoClear.afterBigQuit = v.clearAfterBigQuit }
+        if AutoClearRules.thresholds.contains(v.bigApp), v.bigApp != autoClear.bigApp { autoClear.bigApp = v.bigApp }
+        if v.notifyCritical != alerts.whenCritical { alerts.whenCritical = v.notifyCritical }
+        if v.notifyHigh != alerts.whenHigh { alerts.whenHigh = v.notifyHigh }
+        if Theme.all.contains(where: { $0.id == v.accent }), v.accent != ThemeStore.shared.themeID {
+            ThemeStore.shared.themeID = v.accent
+        }
     }
 
     /// ↑ and ↓ in the memory window (S-019).

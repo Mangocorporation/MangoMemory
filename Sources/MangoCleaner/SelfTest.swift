@@ -42,6 +42,7 @@ enum SelfTest {
             await keyboard(model)
             await insight(model)
             await polish(model)
+            await iCloudSync(model)
             refreshInterval(model)
 
             print(failures == 0 ? "SELFTEST PASS \(count) checks" : "SELFTEST FAIL \(failures) of \(count) checks")
@@ -299,6 +300,47 @@ enum SelfTest {
         let window = await openWindow()
         check("the window drops down from the menu bar item again", window != nil)
         if window != nil { MenuBarItem.button?.performClick(nil) }
+    }
+
+    /// iCloud sync: a change here reaches the file; a newer file from another Mac
+    /// applies here; an older one does not. Test runs use a folder in /tmp.
+    private static func iCloudSync(_ model: AppModel) async {
+        let sync = model.settingsSync!
+        check("test runs sync through /tmp, never iCloud Drive", sync.folder.path.hasPrefix("/tmp/"), sync.folder.path)
+        model.menuBarText = .pressure
+        try? await Task.sleep(for: .seconds(1.8))
+        let written = (try? Data(contentsOf: sync.file)).flatMap { try? SyncedSettings.decode($0) }
+        check("a change here is written to the synced file", written?.values.menuBarText == "pressure",
+              written?.values.menuBarText ?? "no file")
+
+        guard var values = written?.values else { return }
+        values.menuBarText = MenuBarText.iconOnly.rawValue
+        values.notifyHigh = true
+        try? SyncedSettings(values: values, modified: .now.addingTimeInterval(5), device: "Other Mac").encoded().write(to: sync.file)
+        sync.fileChanged()
+        check("a newer change from another Mac applies here",
+              model.menuBarText == .iconOnly && model.alerts.whenHigh && sync.lastSync?.device == "Other Mac")
+
+        values.menuBarText = MenuBarText.available.rawValue
+        try? SyncedSettings(values: values, modified: .distantPast, device: "Old Mac").encoded().write(to: sync.file)
+        sync.fileChanged()
+        check("an older file from another Mac changes nothing", model.menuBarText == .iconOnly)
+
+        // Like iCloud Drive: a coordinated write the watcher hears about, with no direct call.
+        values.menuBarText = MenuBarText.available.rawValue
+        values.largeMenuBarText = true
+        if let data = try? SyncedSettings(values: values, modified: .now.addingTimeInterval(10), device: "iCloud Mac").encoded() {
+            var error: NSError?
+            NSFileCoordinator(filePresenter: nil).coordinate(writingItemAt: sync.file, options: .forReplacing, error: &error) { url in
+                try? data.write(to: url, options: .atomic)
+            }
+        }
+        for _ in 1...30 where !model.largeMenuBarText { try? await Task.sleep(for: .milliseconds(100)) }
+        check("the file watcher applies a change iCloud Drive writes", model.largeMenuBarText && model.menuBarText == .available)
+
+        model.largeMenuBarText = false
+        model.alerts.whenHigh = false
+        try? await Task.sleep(for: .seconds(1.5))
     }
 
     /// S-009: the refresh interval is saved.

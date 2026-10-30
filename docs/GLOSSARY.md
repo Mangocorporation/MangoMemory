@@ -39,6 +39,7 @@ use these words only.
 | Return to Menu Bar | Close the floating window; the memory window drops down from the menu bar item again | unpin, reset window position |
 | Menu bar shows | What the menu bar item shows next to its glyph: Available memory, Pressure %, or Icon only | status text |
 | Open at login | Start MangoCleaner when you log in | launch at login, start at login |
+| Sync settings with iCloud | Keep every setting the same on all Macs signed in to the same iCloud account | iCloud sync, cloud backup |
 | Clear automatically | Clear File Cache on its own when pressure stays high or a big app quits | auto clean, smart clean |
 | Settings… | Open the Settings window (⌘,) | Preferences, options |
 | About MangoCleaner | Open the About window | info |

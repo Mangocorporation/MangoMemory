@@ -59,3 +59,10 @@ Symptom: Settings › General › Text size › Large changed nothing in the men
 Cause: a MenuBarExtra label ignores SwiftUI fonts, and shows only the first Image of an HStack.
 Fix: draw the glyph and the text into one NSImage (template at Normal, colored glyph and label-colored text at High and Critical).
 Rule: in a MenuBarExtra label, put everything in one image; check each label variant on a status snapshot.
+
+## Test runs saved the accent to the real settings (2026-10-30)
+
+Symptom: none seen yet; found while adding iCloud sync, which reads and sets the accent.
+Cause: ThemeStore read and wrote "appearance.accent" in UserDefaults.standard, not Store.defaults.
+Fix: ThemeStore uses Store.defaults, like every other setting.
+Rule: every setting goes through Store.defaults; grep for UserDefaults.standard after adding one.

@@ -102,8 +102,33 @@ struct GeneralSettings: View {
                     .foregroundStyle(.secondary)
             }
         }
+        ICloudSyncSection()
         Section {
             LabeledContent("Version", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—")
+        }
+    }
+}
+
+/// Settings › General › iCloud: the same settings on every Mac.
+struct ICloudSyncSection: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        @Bindable var sync = model.settingsSync
+        Section {
+            Toggle("Sync settings with iCloud", isOn: $sync.enabled)
+                .disabled(!sync.available)
+        } footer: {
+            Group {
+                if !sync.available {
+                    Text("Turn on iCloud Drive in System Settings › Apple Account › iCloud to sync.")
+                } else if sync.enabled, let last = sync.lastSync {
+                    Text("Synced \(Text(last.date, style: .relative)) ago with \(last.device). Saved in iCloud Drive › MangoCleaner.")
+                } else {
+                    Text("Keeps these settings the same on every Mac signed in to your iCloud account. Each Mac still asks once for the helper.")
+                }
+            }
+            .foregroundStyle(.secondary)
         }
     }
 }
